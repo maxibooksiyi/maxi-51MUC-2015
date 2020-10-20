@@ -1,0 +1,372 @@
+C51 COMPILER V9.01   计算器程序                                                            01/28/2015 20:34:18 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE 计算器程序
+OBJECT MODULE PLACED IN 计算器程序.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 计算器程序.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include<reg51.h>   //头文件
+   2          #define uint unsigned int // 
+   3          #define uchar unsigned char
+   4          
+   5          sbit lcden=P2^0; //定义引脚
+   6          sbit rs=P2^3;
+   7          sbit rw=P2^4;
+   8          sbit busy=P0^7;
+   9          
+  10          char i,j,temp,num,num_1;
+  11          long a,b,c;     //a,第一个数 b,第二个数 c,得数
+  12          float a_c,b_c;
+  13          uchar flag,fuhao;//flag表示是否有符号键按下，fuhao表征按下的是哪个符号
+  14          
+  15          uchar code table[]={
+  16          7,8,9,0,
+  17          4,5,6,0,
+  18          1,2,3,0,
+  19          0,0,0,0};
+  20          uchar code table1[]={
+  21          7,8,9,0x2f-0x30,
+  22          4,5,6,0x2a-0x30,
+  23          1,2,3,0x2d-0x30,
+  24          0x01-0x30,0,0x3d-0x30,0x2b-0x30};
+  25          
+  26          void delay(uchar z) // 延迟函数
+  27          {
+  28   1      uchar y;
+  29   1      for(z;z>0;z--)
+  30   1         for(y=0;y<110;y++);
+  31   1      }
+  32          
+  33          void check() // 判断忙或空闲
+  34          {
+  35   1      do{
+  36   2          P0=0xFF;
+  37   2          rs=0;     //指令
+  38   2          rw=1;     //读
+  39   2          lcden=0;     //禁止读写
+  40   2          delay(1); //等待，液晶显示器处理数据
+  41   2          lcden=1;     //允许读写
+  42   2          }while(busy==1); //判断是否为空闲，1为忙，0为空闲
+  43   1      }
+  44          void write_com(uchar com) // 写指令函数
+  45          {
+  46   1      P0=com;    //com指令付给P0口
+  47   1      rs=0;
+  48   1      rw=0;
+  49   1      lcden=0;
+  50   1      check();
+  51   1      lcden=1;
+  52   1      }
+  53          
+  54          void write_date(uchar date) // 写数据函数
+  55          {
+C51 COMPILER V9.01   计算器程序                                                            01/28/2015 20:34:18 PAGE 2   
+
+  56   1          P0=date;
+  57   1      rs=1;
+  58   1      rw=0;
+  59   1      lcden=0;
+  60   1      check();
+  61   1      lcden=1;
+  62   1      }
+  63          
+  64          void init() //初始化
+  65          {
+  66   1          num=-1;
+  67   1      lcden=1; //使能信号为高电平
+  68   1      write_com(0x38); //8位，2行
+  69   1      write_com(0x0c); //显示开，光标关，不闪烁*/
+  70   1      write_com(0x06); //增量方式不移位 显竟獗暌贫 柚?
+  71   1      write_com(0x80); //检测忙信号
+  72   1      write_com(0x01); //显示开，光标关，不闪烁
+  73   1      num_1=0;
+  74   1      i=0;
+  75   1      j=0;
+  76   1      a=0;     //第一个参与运算的数
+  77   1      b=0;     //第二个参与运算的数
+  78   1      c=0;
+  79   1      flag=0; //flag表示是否有符号键按下， 
+  80   1      fuhao=0; // fuhao表征按下的是哪个符号
+  81   1      }
+  82          void keyscan() // 键盘扫描程序
+  83          {
+  84   1      
+  85   1      P3=0xfe; 
+  86   1      if(P3!=0xfe)
+  87   1      {
+  88   2         delay(20); // 延迟20ms
+  89   2         if(P3!=0xfe)
+  90   2         {
+  91   3          temp=P3&0xf0;
+  92   3          switch(temp)
+  93   3          {
+  94   4           case 0xe0:num=0;
+  95   4             break;
+  96   4           case 0xd0:num=1;
+  97   4             break; 
+  98   4           case 0xb0:num=2;
+  99   4             break;
+ 100   4           case 0x70:num=3;
+ 101   4             break;
+ 102   4          }
+ 103   3         }
+ 104   2         while(P3!=0xfe);
+ 105   2         if(num==0||num==1||num==2)//如果按下的是'7','8'或'9
+ 106   2         { 
+ 107   3             if(j!=0)
+ 108   3              { 
+ 109   4                write_com(0x01);
+ 110   4                j=0;
+ 111   4               }
+ 112   3             if(flag==0)//没有按过符号键
+ 113   3          {
+ 114   4           a=a*10+table[num]; 
+ 115   4          }
+ 116   3          else//如果按过符号键
+ 117   3          {
+C51 COMPILER V9.01   计算器程序                                                            01/28/2015 20:34:18 PAGE 3   
+
+ 118   4           b=b*10+table[num]; 
+ 119   4          }
+ 120   3         }
+ 121   2         else//如果按下的是'/'
+ 122   2         {
+ 123   3          flag=1;
+ 124   3          fuhao=4;//4表示除号已按
+ 125   3         }
+ 126   2         i=table1[num];
+ 127   2         write_date(0x30+i);
+ 128   2      }
+ 129   1      
+ 130   1      P3=0xfd;
+ 131   1      if(P3!=0xfd)
+ 132   1      {
+ 133   2         delay(5);
+ 134   2         if(P3!=0xfd)
+ 135   2         {
+ 136   3          temp=P3&0xf0;
+ 137   3          switch(temp)
+ 138   3          {
+ 139   4           case 0xe0:num=4;
+ 140   4               break;
+ 141   4            
+ 142   4           case 0xd0:num=5;
+ 143   4               break;
+ 144   4            
+ 145   4           case 0xb0:num=6;
+ 146   4               break;
+ 147   4            
+ 148   4           case 0x70:num=7;
+ 149   4               break;
+ 150   4          }
+ 151   3         }
+ 152   2         while(P3!=0xfd);
+ 153   2         if(num==4||num==5||num==6&&num!=7)//如果按下的是'4','5'或'6'
+ 154   2         { 
+ 155   3          if(j!=0)
+ 156   3              { 
+ 157   4                write_com(0x01);
+ 158   4                j=0;
+ 159   4               }
+ 160   3             if(flag==0)//没有按过符号键
+ 161   3          {
+ 162   4           a=a*10+table[num]; 
+ 163   4          }
+ 164   3          else//如果按过符号键
+ 165   3          {
+ 166   4           b=b*10+table[num]; 
+ 167   4          }
+ 168   3         }
+ 169   2         else//如果按下的是'/'
+ 170   2         {
+ 171   3          flag=1;
+ 172   3          fuhao=3;//3表示乘号已按
+ 173   3         }
+ 174   2         i=table1[num];
+ 175   2         write_date(0x30+i);
+ 176   2      }
+ 177   1      
+ 178   1      P3=0xfb;
+ 179   1      if(P3!=0xfb)
+C51 COMPILER V9.01   计算器程序                                                            01/28/2015 20:34:18 PAGE 4   
+
+ 180   1      {
+ 181   2         delay(5);
+ 182   2         if(P3!=0xfb)
+ 183   2         {
+ 184   3          temp=P3&0xf0;
+ 185   3          switch(temp)
+ 186   3          {
+ 187   4           case 0xe0:num=8;
+ 188   4               break;
+ 189   4            
+ 190   4           case 0xd0:num=9;
+ 191   4               break;
+ 192   4            
+ 193   4           case 0xb0:num=10;
+ 194   4               break;
+ 195   4            
+ 196   4           case 0x70:num=11;
+ 197   4               break;
+ 198   4          }
+ 199   3         }
+ 200   2         while(P3!=0xfb);
+ 201   2         if(num==8||num==9||num==10)//如果按下的是'1','2'或'3'
+ 202   2         { 
+ 203   3          if(j!=0)
+ 204   3              { 
+ 205   4                write_com(0x01);
+ 206   4                j=0;
+ 207   4               }
+ 208   3            if(flag==0)//没有按过符号键
+ 209   3          {
+ 210   4           a=a*10+table[num]; 
+ 211   4          }
+ 212   3          else//如果按过符号键
+ 213   3          {
+ 214   4           b=b*10+table[num]; 
+ 215   4          }
+ 216   3         }
+ 217   2         else if(num==11)//如果按下的是'-'
+ 218   2         {
+ 219   3          flag=1;
+ 220   3          fuhao=2;//2表示减号已按
+ 221   3         }
+ 222   2         i=table1[num];
+ 223   2         write_date(0x30+i);
+ 224   2      }
+ 225   1      
+ 226   1      P3=0xf7;
+ 227   1      if(P3!=0xf7)
+ 228   1      {
+ 229   2         delay(5);
+ 230   2         if(P3!=0xf7)
+ 231   2         {
+ 232   3          temp=P3&0xf0;
+ 233   3          switch(temp)
+ 234   3          {
+ 235   4           case 0xe0:num=12;
+ 236   4               break;
+ 237   4            
+ 238   4           case 0xd0:num=13;
+ 239   4               break;
+ 240   4            
+ 241   4           case 0xb0:num=14;
+C51 COMPILER V9.01   计算器程序                                                            01/28/2015 20:34:18 PAGE 5   
+
+ 242   4               break;
+ 243   4            
+ 244   4           case 0x70:num=15;
+ 245   4               break;
+ 246   4          }
+ 247   3         }
+ 248   2         while(P3!=0xf7);
+ 249   2         switch(num)
+ 250   2         {
+ 251   3          case 12:{write_com(0x01);a=0;b=0;flag=0;fuhao=0;}//按下的是"清零"
+ 252   3           break;
+ 253   3          case 13:{                //按下的是"0"
+ 254   4             if(flag==0)//没有按过符号键
+ 255   4             {
+ 256   5              a=a*10;
+ 257   5              write_date(0x30);
+ 258   5              P1=0;
+ 259   5             }
+ 260   4             else if(flag==1)//如果按过符号键
+ 261   4             {
+ 262   5              b=b*10;
+ 263   5              write_date(0x30);
+ 264   5              }
+ 265   4            }
+ 266   3           break;
+ 267   3          case 14:{j=1;
+ 268   4                 if(fuhao==1){write_com(0x80+0x4f);//按下等于键，光标前进至第二行最后一个显示处
+ 269   5                 write_com(0x04);     //设置从后住前写数据，每写完一个数据，光标后退一格
+ 270   5                 c=a+b;
+ 271   5                 while(c!=0)
+ 272   5                 { 
+ 273   6                   write_date(0x30+c%10);
+ 274   6                   c=c/10;
+ 275   6                 } 
+ 276   5                 write_date(0x3d);     //再写"="
+ 277   5                 a=0;b=0;flag=0;fuhao=0;
+ 278   5                 }
+ 279   4            else if(fuhao==2){write_com(0x80+0x4f);//光标前进至第二行最后一个显示处
+ 280   5                  write_com(0x04);     //设置从后住前写数据，每写完一个数据，光标后退一格(这个照理说顺序不对，可
+             -显示和上段一样)
+ 281   5                 if(a-b>0)
+ 282   5                   c=a-b;
+ 283   5                 else 
+ 284   5                   c=b-a;
+ 285   5                 while(c!=0)
+ 286   5                 { 
+ 287   6                   write_date(0x30+c%10);
+ 288   6                   c=c/10;
+ 289   6                 } 
+ 290   5                 if(a-b<0)
+ 291   5                   write_date(0x2d);
+ 292   5                 write_date(0x3d);     //再写"="           
+ 293   5                 a=0;b=0;flag=0;fuhao=0;
+ 294   5                }
+ 295   4            else if(fuhao==3){write_com(0x80+0x4f);
+ 296   5                  write_com(0x04);
+ 297   5                   c=a*b;
+ 298   5                   while(c!=0)
+ 299   5                   { 
+ 300   6                   write_date(0x30+c%10);
+ 301   6                   c=c/10;
+ 302   6                   } 
+C51 COMPILER V9.01   计算器程序                                                            01/28/2015 20:34:18 PAGE 6   
+
+ 303   5                   write_date(0x3d);     
+ 304   5                a=0;b=0;flag=0;fuhao=0;
+ 305   5                   }
+ 306   4            else if(fuhao==4){write_com(0x80+0x4f);
+ 307   5                  write_com(0x04);
+ 308   5                  i=0;
+ 309   5                  c=(long)(((float)a/b)*1000);
+ 310   5                  while(c!=0)
+ 311   5                   { 
+ 312   6                     write_date(0x30+c%10);
+ 313   6                     c=c/10;
+ 314   6                 i++;
+ 315   6                 if(i==3)
+ 316   6                     write_date(0x2e);
+ 317   6                   } 
+ 318   5                  if(a/b<=0)
+ 319   5                    write_date(0x30);
+ 320   5                  write_date(0x3d);                              
+ 321   5                  a=0;b=0;flag=0;fuhao=0;
+ 322   5                          }
+ 323   4            }
+ 324   3           break;
+ 325   3           case 15:{write_date(0x30+table1[num]);flag=1;fuhao=1;}
+ 326   3           break;
+ 327   3         }
+ 328   2      }
+ 329   1      }
+ 330          
+ 331          main()
+ 332          {
+ 333   1      init();
+ 334   1      while(1)
+ 335   1      {
+ 336   2         keyscan();
+ 337   2      }
+ 338   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1728    ----
+   CONSTANT SIZE    =     32    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     27    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

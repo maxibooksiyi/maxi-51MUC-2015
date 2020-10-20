@@ -1,0 +1,162 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        02/01/2015  20:50:52  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE LCD1602.obj TO LCD1602
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  LCD1602.obj (LCD1602)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  LCD1602 (LCD1602)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0036H     UNIT         ?PR?_DELAY1US?LCD1602
+            CODE    0039H     0026H     UNIT         ?PR?MAIN?LCD1602
+            CODE    005FH     0022H     UNIT         ?CO?LCD1602
+            CODE    0081H     0019H     UNIT         ?PR?LCD1602_INIT?LCD1602
+            CODE    009AH     000CH     UNIT         ?PR?_LCD1602_WRITECOM?LCD1602
+            CODE    00A6H     000CH     UNIT         ?PR?_LCD1602_WRITEDATA?LCD1602
+            CODE    00B2H     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   LCD1602 (LCD1602)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?LCD1602
+
+?PR?MAIN?LCD1602
+  +--> ?PR?LCD1602_INIT?LCD1602
+  +--> ?PR?_DELAY1US?LCD1602
+  +--> ?PR?_LCD1602_WRITECOM?LCD1602
+  +--> ?CO?LCD1602
+  +--> ?PR?_LCD1602_WRITEDATA?LCD1602
+
+?PR?LCD1602_INIT?LCD1602
+  +--> ?PR?_LCD1602_WRITECOM?LCD1602
+
+?PR?_LCD1602_WRITECOM?LCD1602
+  +--> ?PR?_DELAY1US?LCD1602
+
+?PR?_LCD1602_WRITEDATA?LCD1602
+  +--> ?PR?_DELAY1US?LCD1602
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/01/2015  20:50:52  PAGE 2
+
+
+
+
+
+SYMBOL TABLE OF MODULE:  LCD1602 (LCD1602)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        LCD1602
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:00A0H         PUBLIC        P2
+  C:005FH         PUBLIC        PuZh
+  C:00A6H         PUBLIC        _LCD1602_WriteData
+  C:001BH         PUBLIC        _Delay1us
+  C:0081H         PUBLIC        LCD1602_Init
+  B:00A0H.6       PUBLIC        LCD1602_RS
+  C:0039H         PUBLIC        main
+  B:00A0H.5       PUBLIC        LCD1602_RW
+  C:009AH         PUBLIC        _LCD1602_WriteCom
+  C:0070H         PUBLIC        PuZh1
+  B:00A0H.7       PUBLIC        LCD1602_E
+  -------         PROC          L?0022
+  -------         ENDPROC       L?0022
+  -------         PROC          _DELAY1US
+  D:0006H         SYMBOL        a
+  -------         DO            
+  D:0004H         SYMBOL        b
+  D:0006H         SYMBOL        c
+  -------         ENDDO         
+  C:001BH         LINE#         15
+  C:001BH         LINE#         16
+  C:001BH         LINE#         18
+  C:0024H         LINE#         19
+  C:0038H         LINE#         20
+  -------         ENDPROC       _DELAY1US
+  -------         PROC          _LCD1602_WRITECOM
+  D:0003H         SYMBOL        com
+  C:009AH         LINE#         28
+  C:009CH         LINE#         29
+  C:009CH         LINE#         30
+  C:009EH         LINE#         31
+  C:00A0H         LINE#         32
+  C:00A0H         LINE#         33
+  C:00A0H         LINE#         34
+  C:00A0H         LINE#         35
+  C:00A0H         LINE#         36
+  C:00A0H         LINE#         37
+  C:00A3H         LINE#         38
+  C:00A5H         LINE#         39
+  -------         ENDPROC       _LCD1602_WRITECOM
+  -------         PROC          _LCD1602_WRITEDATA
+  D:0003H         SYMBOL        dat
+  C:00A6H         LINE#         47
+  C:00A8H         LINE#         48
+  C:00A8H         LINE#         49
+  C:00AAH         LINE#         50
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/01/2015  20:50:52  PAGE 3
+
+
+  C:00ACH         LINE#         51
+  C:00ACH         LINE#         52
+  C:00ACH         LINE#         53
+  C:00ACH         LINE#         54
+  C:00ACH         LINE#         55
+  C:00ACH         LINE#         56
+  C:00AFH         LINE#         57
+  C:00B1H         LINE#         58
+  -------         ENDPROC       _LCD1602_WRITEDATA
+  -------         PROC          LCD1602_INIT
+  C:0081H         LINE#         67
+  C:0081H         LINE#         68
+  C:0081H         LINE#         69
+  C:0086H         LINE#         70
+  C:008BH         LINE#         71
+  C:0090H         LINE#         72
+  C:0095H         LINE#         73
+  -------         ENDPROC       LCD1602_INIT
+  -------         PROC          MAIN
+  -------         DO            
+  D:0002H         SYMBOL        i
+  -------         ENDDO         
+  C:0039H         LINE#         79
+  C:0039H         LINE#         80
+  C:0039H         LINE#         82
+  C:003CH         LINE#         83
+  C:0042H         LINE#         87
+  C:0047H         LINE#         89
+  C:0049H         LINE#         90
+  C:0049H         LINE#         92
+  C:0052H         LINE#         93
+  C:0059H         LINE#         94
+  C:005DH         LINE#         95
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        LCD1602
+
+Program Size: data=9.0 xdata=0 code=190
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

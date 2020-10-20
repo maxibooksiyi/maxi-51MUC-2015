@@ -1,0 +1,605 @@
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE GUI
+OBJECT MODULE PLACED IN gui.obj
+COMPILER INVOKED BY: C:\KeilMDK\C51\BIN\C51.EXE GUI\gui.c LARGE BROWSE DEBUG OBJECTEXTEND PRINT(.\gui.lst) OBJECT(gui.ob
+                    -j)
+
+line level    source
+
+   1          /*******************************************************************/
+   2          /*                         GUI 图形化用户界面                      */
+   3          /* 文件名: gui.c                                                  */
+   4          /* 平台: TOP51 + keil C51                                            */
+   5          /* 公司: 爱晶电子                                                  */
+   6          /* 网址：http://www.ajdz.net                                       */
+   7          // 描  述: TFT图形用户接口层程序集
+   8          /* 作者                         日期                    注释       */
+   9          /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  10          /* 王伟民               08/10/20                        原始文件   */
+  11          /* 王伟民               2010/3/30               V1.1移植到STC 高速51单片机*/
+  12          /* 王伟民               2010/4/29               V1.2完善了显示预定义汉字字符串函数，不再需要人工修改字符数了*/
+  13          /*                        增加了画矩形和显示长整数和长变量函数*/
+  14          /*******************************************************************/
+  15          /*说明： 数字、英文字符为8*16点阵字形 中文字符为16*16点阵字形                                        */
+  16          /*******************************************************************/
+  17          #include "stc.h"
+  18          #include "top51.h"
+  19          #include "GUI/gui.h"
+  20          #include "LCM/ILI9325.h"
+  21          #include "bmp.h"
+  22          #include "16x8.h"
+  23          #include "chinese.h"
+  24          
+  25          /************************************
+  26          清屏
+  27          入口参数： b_color是背景颜色。
+  28          出口参数: 无
+  29          说明：使用背景颜色清除TFT模块屏幕的全部显示内容。
+  30          *************************************/
+  31          void GUI_clearscreen(uint b_color)
+  32          {
+  33   1              uint i,j;
+  34   1              LCD_setwindow(0,0,176,220);
+  35   1              for (i=0;i<220;i++)
+  36   1              {
+  37   2                      for(j=0;j<176;j++)
+  38   2                              write_data_u16(b_color);
+  39   2              }
+  40   1      }
+  41          
+  42          
+  43          /*********************************************
+  44          画点
+  45          入口参数： (x，y)是点的坐标，color 是点的颜色。
+  46          出口参数: 无
+  47          说明：用指定的颜色在指定的坐标位置上画出一个点。
+  48          **********************************************/
+  49          void GUI_Point(uchar x, uint y, uint color)
+  50          {  
+  51   1              LCD_setxy(x,y);
+  52   1              write_data_u16(color);
+  53   1      }
+  54          
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 2   
+
+  55          
+  56          /**********************************************************
+  57          无符号字符型数以二进制形式显示
+  58          入口参数：(x，y)是显示内容的左上角坐标，color 是显示字符的颜色，
+  59                    b_color是背景颜色。
+  60          出口参数: 无
+  61          说明：无符号字符型数用指定的颜色和背景颜色在指定的坐标位置上
+  62          以二进制形式显示出来。
+  63          ************************************************************/
+  64          void GUI_sprintf_chartobit(uchar x, uint y,uchar dat, uint color,uint b_color)
+  65          {  
+  66   1              uchar i ;
+  67   1              for(i=0;i<8;i++)
+  68   1              {
+  69   2                      if((dat&(0x80>>i))==(0x80>>i))
+  70   2                      {
+  71   3                              GUI_sprintf_nu(x,y,1,color,b_color) ;
+  72   3                      }
+  73   2                      else 
+  74   2                      {
+  75   3                              GUI_sprintf_nu(x,y,0,color,b_color) ;
+  76   3                      }
+  77   2                      x+=8 ;
+  78   2              }
+  79   1      }
+  80          
+  81          
+  82          /**********************************************************
+  83          无符号字符型数以十六进制形式显示
+  84          入口参数：(x，y)是显示内容的左上角坐标，dat 是欲显示的无符号字符型数，
+  85                    color 是显示字符的颜色，b_color是背景颜色。
+  86          出口参数: 无
+  87          说明：无符号字符型数用指定的颜色和背景颜色在指定的坐标位置上
+  88                以十六进制形式显示出来。
+  89          ************************************************************/
+  90          void GUI_sprintf_chartohex(uchar x, uint y,uchar dat, uint color,uint b_color)
+  91          {  
+  92   1              uchar i ;
+  93   1              GUI_sprintf_nu(x,y,dat>>4,color,b_color) ;
+  94   1              x+=8 ;
+  95   1              GUI_sprintf_nu(x,y,dat&0x0f,color,b_color) ;
+  96   1      }
+*** WARNING C280 IN LINE 92 OF GUI\GUI.C: 'i': unreferenced local variable
+  97          
+  98          
+  99          /**********************************************************
+ 100          无符号字符型数以十进制形式显示
+ 101          入口参数：(x，y)是显示内容的左上角坐标，dat是欲显示的无符号字符型数，
+ 102                    color 是显示字符的颜色，b_color是背景颜色。
+ 103          出口参数: 无
+ 104          说明：无符号字符型数用指定的颜色和背景颜色在指定的坐标位置上
+ 105                以十进制形式显示出来。
+ 106          ************************************************************/
+ 107          void GUI_sprintf_chartodec(uchar x,uint y,uchar dat,uint color,uint b_color)
+ 108          {
+ 109   1              GUI_sprintf_char(x,y,dat/100+'0',color,b_color);
+ 110   1              GUI_sprintf_char(x+8,y,dat/10%10+'0',color,b_color);
+ 111   1              GUI_sprintf_char(x+16,y,dat%10+'0',color,b_color);
+ 112   1      }
+ 113          
+ 114          
+ 115          /*********************************************
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 3   
+
+ 116          显示1位16进制数
+ 117          入口参数： (x，y) 是显示内容的左上角坐标，c：欲显示的1位16进制数，color:颜色,b_color:背景颜色。
+ 118          出口参数: 无
+ 119          说明：用指定位置上显示1位16进制数。
+ 120          **********************************************/
+ 121          void GUI_sprintf_nu(uchar x, uint y,uchar nu, uint color,uint b_color)
+ 122          {  
+ 123   1              uchar  s_x=0 ,s_y=0, temp=0 ;
+ 124   1              uint j;
+ 125   1         if (nu>9)
+ 126   1              {nu=nu+7;} 
+ 127   1         nu=nu+16;
+ 128   1         for(s_y=0;s_y<16;s_y++)
+ 129   1         {
+ 130   2                      if(s_y+y<220)
+ 131   2                 {
+ 132   3                              j=nu;
+ 133   3                         j=j*16+s_y;
+ 134   3                         temp=font16x8[j];
+ 135   3                    //temp = font16x8[nu*16+s_y] ;
+ 136   3                         for( s_x=0 ; s_x<8 ; s_x++ )
+ 137   3                    {
+ 138   4                              if(x+s_x<176)
+ 139   4                            {
+ 140   5                                      if((temp&(0x80>>(s_x))) == (0x80>>(s_x))  )
+ 141   5                                    {
+ 142   6                                              GUI_Point(x+s_x, y+s_y,color) ;
+ 143   6                                    }
+ 144   5                                      else
+ 145   5                                    {
+ 146   6                                              GUI_Point(x+s_x, y+s_y,b_color) ;
+ 147   6                                         }
+ 148   5                                 }
+ 149   4                         }
+ 150   3                 }
+ 151   2              }
+ 152   1      }
+ 153          
+ 154          /**********************************************************
+ 155          画横线
+ 156          入口参数： (x，y)是横线起点坐标，length是横线长度，color 是横线颜色。
+ 157          出口参数: 无
+ 158          说明：用指定的颜色在指定位置上画出指定长度的一条横线。
+ 159          ************************************************************/
+ 160          void GUI_HLine(uchar x, uint y, uchar length, uint color) 
+ 161          {  
+ 162   1              LCD_setwindow(x,y,x+length-1,y);
+ 163   1              do
+ 164   1              {  
+ 165   2                      write_data_u16(color);//逐点显示，描出水平线
+ 166   2                      length--;
+ 167   2              }while(length);
+ 168   1      }
+ 169          
+ 170          /**********************************************************
+ 171          画竖线
+ 172          入口参数： (x，y)是竖线起点坐标，high 竖线高度，color 是竖线颜色。
+ 173          出口参数: 无
+ 174          说明：用指定的颜色在指定位置上画出指定长度的一条竖线。
+ 175          ************************************************************/
+ 176          void GUI_RLine(uchar x, uint y, uint high, uint color) 
+ 177          {  
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 4   
+
+ 178   1         LCD_setwindow(x,y,x,y+high-1);
+ 179   1         do
+ 180   1         {  
+ 181   2                      write_data_u16(color);// 逐点显示，描出垂直线
+ 182   2                      high--;
+ 183   2         }while(high);        
+ 184   1      }
+ 185          
+ 186          
+ 187          /******************************************************************** 
+ 188          画直线（可以画任意方向直线，包括横线、竖线、斜线）。
+ 189          入口参数： (x1,y1)起点, (x2,y2)终点, color颜色。
+ 190          出口参数: 无
+ 191          说明：用指定的颜色在指定的两点间画出一条直线。
+ 192          ***********************************************************************/
+ 193          void GUI_line(uint x1,uint y1,uint x2,uint y2,uint color)  
+ 194          {  
+ 195   1          uint t;  
+ 196   1          int xerr=0,yerr=0,delta_x,delta_y,distance;  
+ 197   1          int incx,incy;  
+ 198   1          uint row,col;  
+ 199   1          delta_x = x2-x1;//计算坐标增量  
+ 200   1          delta_y = y2-y1;  
+ 201   1          col=x1;  
+ 202   1          row=y1;  
+ 203   1          if(delta_x>0) incx=1;//设置单步方向  
+ 204   1          else   
+ 205   1          {  
+ 206   2              if(delta_x==0) incx=0;//垂直线  
+ 207   2              else {incx=-1;delta_x=-delta_x;}  
+ 208   2          }  
+ 209   1          if(delta_y>0)incy=1;  
+ 210   1          else  
+ 211   1          {  
+ 212   2              if(delta_y==0) incy=0;//水平线  
+ 213   2              else {incy=-1;delta_y=-delta_y;}  
+ 214   2          }  
+ 215   1          if(delta_x>delta_y) distance=delta_x;//选取基本增量坐标轴  
+ 216   1          else distance=delta_y;  
+ 217   1      
+ 218   1          for(t=0;t<=distance+1;t++)  
+ 219   1              {                                     //画线输出  
+ 220   2                  GUI_Point(col, row, color);
+ 221   2              xerr+=delta_x;  
+ 222   2              yerr+=delta_y;  
+ 223   2              if(xerr>distance)  
+ 224   2              {  
+ 225   3                  xerr-=distance;  
+ 226   3                  col+=incx;  
+ 227   3              }  
+ 228   2              if(yerr>distance)  
+ 229   2              {  
+ 230   3                  yerr-=distance;  
+ 231   3                  row+=incy;  
+ 232   3              }  
+ 233   2          }  
+ 234   1      }
+ 235          
+ 236          
+ 237          /**********************************************************
+ 238          显示图片(图标)
+ 239          入口参数：(x，y)是开始点的坐标，length是图片长度，high是图片高度。//pic 图片数组的指针
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 5   
+
+ 240          出口参数: 无
+ 241          说明：用指定位置上显示事先定义的图片。
+ 242          要显示的图片事先定义在bmp.h中的pic[]数组中，
+ 243          如果想修改图片大小、内容，请修改bmp.h中的pic[]数组，
+ 244          建议用Image2Lcd软件将你要显示的图象自动转换为数组数据。 
+ 245          ************************************************************/
+ 246          //void GUI_DisPicture(uchar x, uint y, uchar length, uint high ,const uchar *pic)
+ 247          void GUI_DisPicture(uchar x, uint y, uchar length, uint high)
+ 248          {
+ 249   1         uint temp=0,tmp=0,num=0;
+ 250   1              LCD_setwindow(x,y,x+length-1,y+high-1);
+ 251   1              num=length*high*2;
+ 252   1              do
+ 253   1              {  
+ 254   2                 //temp=pic[tmp]|( pic[tmp+1]<<8);
+ 255   2                 temp=pic[tmp+1];
+ 256   2                 temp=temp<<8;
+ 257   2                 temp=temp|pic[tmp];
+ 258   2                 write_data_u16(temp);//逐点显示
+ 259   2                 tmp+=2;
+ 260   2              }while(tmp<num);
+ 261   1      }
+ 262          
+ 263          
+ 264          /*********************************************
+ 265          显示英文或数字字符
+ 266          入口参数：(x，y) 是显示内容的左上角坐标，c：显示的英文字符，
+ 267                    color:颜色,b_color:背景颜色。
+ 268          出口参数: 无
+ 269          说明：用指定位置上显示单个英文字符或数字字符。
+ 270          **********************************************/
+ 271          void GUI_sprintf_char(uchar x, uint y,uchar c, uint color,uint b_color)
+ 272          {  
+ 273   1              uchar  s_x ,s_y, temp ;
+ 274   1              uint j;
+ 275   1              c -= 32;
+ 276   1              for( s_y=0 ; s_y < 16 ; s_y++ )
+ 277   1         {
+ 278   2                      if(s_y+y<220)
+ 279   2                 {
+ 280   3                              j=c;
+ 281   3                         j=j*16+s_y;
+ 282   3                         temp=font16x8[j];
+ 283   3                      //temp = font16x8[c*16+s_y] ;
+ 284   3                         for( s_x=0 ; s_x<8 ; s_x++ )
+ 285   3                    {
+ 286   4                              if(x+s_x<176)
+ 287   4                            {
+ 288   5                                      if((temp&(0x80>>(s_x))) == (0x80>>(s_x))  )
+ 289   5                                    {
+ 290   6                                              GUI_Point(x+s_x, y+s_y,color) ;
+ 291   6                                    }
+ 292   5                                      else
+ 293   5                                    {
+ 294   6                                              GUI_Point(x+s_x, y+s_y,b_color) ;
+ 295   6                                         }
+ 296   5                                 }
+ 297   4                         }
+ 298   3                 }
+ 299   2              }
+ 300   1      }
+ 301          
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 6   
+
+ 302          
+ 303          
+ 304          /*********************************************
+ 305          显示英文字符串
+ 306          入口参数：(x，y) 是显示内容的左上角坐标，*s：英文字符串指针，
+ 307                    color:颜色,b_color:背景颜色。
+ 308          出口参数: 无
+ 309          说明：在指定位置上显示英文字符串。
+ 310          **********************************************/
+ 311          void GUI_sprintf_string(uchar x, uint y,char code *s, uint color,uint b_color)
+ 312          {  
+ 313   1              for(;*s!='\0';s++)
+ 314   1              {
+ 315   2                      GUI_sprintf_char(x, y,*s, color,b_color);
+ 316   2                      x=x+8;
+ 317   2              }
+ 318   1              
+ 319   1              //while (*s) 
+ 320   1              //      {
+ 321   1              //      GUI_sprintf_char(x, y,*s, color,b_color);
+ 322   1              //      s++;
+ 323   1              //      x=x+8;
+ 324   1              //      }
+ 325   1      }
+ 326          
+ 327          
+ 328          /*********************************************
+ 329          显示预定义汉字字符串
+ 330          入口参数：(x，y) 是显示内容的左上角坐标，color:颜色,b_color:背景颜色。
+ 331          出口参数: 无
+ 332          说明：在指定位置上显示预定义的中文字符串。
+ 333                要显示的中文字符串事先定义在chinese.h中的china_char[]数组中，
+ 334                          如果想修改中文字符串长度、内容，请修改chinese.h中的
+ 335                          china_char[]数组，建议用字模提取软件zimoV2.2将你要显示的
+ 336                          中文字符串自动转换为数组数据。
+ 337          **********************************************/
+ 338          void GUI_sprintf_HZ(uchar x, uint y, uint color,uint b_color)
+ 339          { 
+ 340   1              uchar  s_x=0 ,s_y=0, temp=0 ;  
+ 341   1              uchar n;
+ 342   1              uint j,words;
+ 343   1              words=sizeof(china_char)/32;
+ 344   1              for( n=0 ; n<words ; n++ )
+ 345   1              {
+ 346   2                      for( s_x=0 ; s_x<16 ; s_x++ ) 
+ 347   2                      {
+ 348   3                      if(s_x+x<176)
+ 349   3                      {
+ 350   4                         j=n;
+ 351   4                         j=j*32+s_x;
+ 352   4                         temp = china_char[j] ;
+ 353   4                         //temp = china_char[n*32+s_x] ;
+ 354   4                              for( s_y=0 ; s_y<8 ; s_y++ )
+ 355   4                      {
+ 356   5                                      if(y+s_y<220)
+ 357   5                              {
+ 358   6                                              if((temp&(0x80>>(s_y))) == (0x80>>(s_y))  )
+ 359   6                                      {
+ 360   7                                              GUI_Point(x+s_x+n*16, y+s_y,color) ;
+ 361   7                                      }
+ 362   6                                              else
+ 363   6                                      {
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 7   
+
+ 364   7                                              GUI_Point(x+s_x+n*16, y+s_y,b_color) ;
+ 365   7                                              }
+ 366   6                                              }
+ 367   5                              }
+ 368   4                         }
+ 369   3                      }
+ 370   2                      for( s_x=0 ; s_x<16 ; s_x++ ) 
+ 371   2                      {
+ 372   3                      if(s_x+x<176)
+ 373   3                      {
+ 374   4                              j=n;
+ 375   4                              j=j*32+s_x+16;
+ 376   4                              temp = china_char[j] ;
+ 377   4                              //temp = china_char[n*32+s_x+16] ;
+ 378   4                              for( s_y=0 ; s_y<8 ; s_y++ )
+ 379   4                      {
+ 380   5                                      if(y+s_y<220)
+ 381   5                              {
+ 382   6                                              if((temp&(0x80>>(s_y))) == (0x80>>(s_y))  )
+ 383   6                                      {
+ 384   7                                              GUI_Point(x+s_x+n*16, y+s_y+8,color) ;
+ 385   7                                      }
+ 386   6                                              else
+ 387   6                                      {
+ 388   7                                              GUI_Point(x+s_x+n*16, y+s_y+8,b_color) ;
+ 389   7                                              }
+ 390   6                                              }
+ 391   5                              }
+ 392   4                         }
+ 393   3                      }
+ 394   2              }
+ 395   1      }
+ 396          
+ 397          
+ 398          
+ 399          /*********************************************
+ 400          画实心矩形
+ 401          入口参数： (sx,sy)左上角顶点坐标, (ex,ey)右下角顶点坐标, color颜色
+ 402          出口参数: 无
+ 403          说明：在指定位置上画出实心矩形。
+ 404          **********************************************/
+ 405          void GUI_box(uchar sx,uint sy,uchar ex,uint ey,uint color)
+ 406          { 
+ 407   1              uint temp;   
+ 408   1              LCD_setwindow(sx,sy,ex,ey); 
+ 409   1         sx=ex-sx+1;
+ 410   1              sy=ey-sy+1;
+ 411   1      
+ 412   1              while(sx--)
+ 413   1              {
+ 414   2                      temp=sy;
+ 415   2                      while(temp--)
+ 416   2                      {       
+ 417   3                              write_data_u16(color);
+ 418   3                      }
+ 419   2              }
+ 420   1      }
+ 421          
+ 422          
+ 423          /*********************************************
+ 424          画空心矩形
+ 425          入口参数： (sx,sy)左上角顶点坐标, (ex,ey)右下角顶点坐标, color颜色
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 8   
+
+ 426          出口参数: 无
+ 427          说明：在指定位置上画出空心矩形。
+ 428          **********************************************/
+ 429          void GUI_rectangle( uchar sx,uint sy,uchar ex,uint ey,uint color)
+ 430          {
+ 431   1              GUI_line(sx,sy,ex,sy,color);
+ 432   1              GUI_line(sx,sy,sx,ey,color);
+ 433   1              GUI_line(ex,sy,ex,ey,color);
+ 434   1              GUI_line(sx,ey,ex,ey,color);
+ 435   1      }
+ 436          
+ 437          /*********************************************
+ 438          以十进制形式显示无符号长整型数
+ 439          入口参数：(x，y) 是显示内容的右上角坐标；
+ 440                                   num是欲显示的无符号长整型数
+ 441                         num的数值范围为：0~4,294,967,295(十进制)，
+ 442                                   也就是说利用该函数，我们最多将一个10位十进制数显示在LCD屏上；
+ 443                                   color:颜色,b_color:背景颜色。
+ 444          出口参数: 无
+ 445          说明：将一个无符号长整型数以十进制形式显示在TFT屏上。
+ 446          注意：在使用该函数时，不论最终显示的数有几位，它都将在LCD屏幕上
+ 447                占10个字符的空间（显示的多位十进制数不足10位时，
+ 448                          本函数会在有效显示数字前面补空格）。
+ 449          **********************************************/
+ 450          void GUI_wrul(uchar x, uint y, unsigned long num, uint color,uint b_color)
+ 451          {
+ 452   1              unsigned long temp; 
+ 453   1              uchar i;
+ 454   1              for(i=0;i<10;i++)
+ 455   1              {
+ 456   2                      if(num!=0)
+ 457   2                      {
+ 458   3                              temp=num/10;
+ 459   3                              GUI_sprintf_char(x-7,y,num-temp*10+'0',color,b_color);
+ 460   3                              num=temp;
+ 461   3                      }
+ 462   2                      else/*往前写满10位，也就是前面都写空格*/
+ 463   2                      {
+ 464   3                              GUI_sprintf_char(x-7,y,' ',color,b_color);
+ 465   3                      }
+ 466   2                      x=x-8;/*设置光标在文字插入后自动左移*/
+ 467   2              }
+ 468   1      }
+ 469          
+ 470          /*********************************************
+ 471          以十进制形式显示长变量
+ 472          入口参数： 
+ 473             x，y ----是显示内容的右上角坐标 
+ 474              num ----欲显示的长变量
+ 475             bits ----允许显示的位数
+ 476               dp ----小数点位置
+ 477            color ----颜色
+ 478          b_color ----背景颜色
+ 479          出口参数: 无
+ 480          说明： 
+ 481          将一个长变量的数值以十进制形式显示在TFT屏上，可以根据需要确定
+ 482          是否显示小数点以及小数点位置，也可以确定在TFT屏幕上显示的位数。
+ 483          注意：
+ 484          1、要显示的数据比规定的显示位数多，规定的位全部写－，表示数据溢出。
+ 485          2、本函数实际上相当于GUI_wrul函数的增强版，如果我们指定bits=10 dp=0，
+ 486          如下所示：
+ 487          GUI_wrlval(20，239，tp，10，0,WHITE,BLACK);
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 9   
+
+ 488          那么，其作用和GUI_wrul函数完全一样。
+ 489          **********************************************/
+ 490          void GUI_wrlval(uchar x, uint y,unsigned long num,uchar bits,uchar dp,uint color,uint b_color)
+ 491          {
+ 492   1              char str[10];/*无符号长整型数转换为字符串是10个，所以需要10个单元存储*/ 
+ 493   1              unsigned long temp; 
+ 494   1              uchar i;
+ 495   1              //LCD_wrcmd(CUR_AUTO_L);/*设置光标在文字插入后自动左移*/
+ 496   1              for(i=0;i<bits;i++)
+ 497   1              {
+ 498   2                      if(num!=0)
+ 499   2                      {
+ 500   3                              temp=num/10;
+ 501   3                              str[i]=num-temp*10+'0';
+ 502   3                              num=temp;
+ 503   3                      }
+ 504   2                      else/*往前写*/
+ 505   2                      {
+ 506   3                              if(i>=dp)str[i]=0x20;/*小数点前零都变空格*/
+ 507   3                              else str[i]='0';/*小数点后零保留*/
+ 508   3                      }
+ 509   2              }
+ 510   1              i=0;
+ 511   1              if (num!=0)/*要显示的数据比规定的显示位数多，数据显示溢出*/
+ 512   1              {
+ 513   2                      while(i<bits)/*往前写满规定的位数，也就是前面都写空格，直到规定的位数*/
+ 514   2                      {
+ 515   3                              GUI_sprintf_char(x-7,y,'-',color,b_color);/*规定的位全部写-，表示数据溢出*/
+ 516   3                              i++;
+ 517   3                              x=x-8;
+ 518   3                              if (i==dp) 
+ 519   3                              {
+ 520   4                                      GUI_sprintf_char(x-7,y,'.',color,b_color);/*插入小数点*/
+ 521   4                                      x=x-8;
+ 522   4                              }
+ 523   3                      }
+ 524   2              }
+ 525   1              else
+ 526   1              {
+ 527   2                      while(i<bits)/*显示前面的有效数字*/
+ 528   2                      {
+ 529   3                              if ((i==dp)&(str[dp]==0x20))
+ 530   3                              {
+ 531   4                                      GUI_sprintf_char(x-7,y,'.',color,b_color);/*插入小数点*/
+ 532   4                                      x=x-8;
+ 533   4                                      GUI_sprintf_char(x-7,y,'0',color,b_color);/*小数点前为0时要补写0*/
+ 534   4                                      x=x-8;
+ 535   4                              }
+ 536   3                              else
+ 537   3                              {
+ 538   4                                      if ((i==dp)&(i!=0)) 
+ 539   4                                      {
+ 540   5                                              GUI_sprintf_char(x-7,y,'.',color,b_color);/*插入小数点*/
+ 541   5                                              x=x-8;
+ 542   5                                      }
+ 543   4                                      GUI_sprintf_char(x-7,y,str[i],color,b_color);
+ 544   4                                      x=x-8;
+ 545   4                              }
+ 546   3                              i++;                            
+ 547   3                      }
+ 548   2              }
+ 549   1      }
+C51 COMPILER V9.01   GUI                                                                   02/15/2015 17:15:45 PAGE 10  
+
+ 550          
+ 551          
+ 552          /********************************************* 
+ 553          RGB颜色混合
+ 554          入口参数：R（红色分量）0-255,G（绿色分量）0-255,B（蓝色分量）0-255
+ 555          出口参数: 按R5-G6-B5格式混合后的16位颜色码。
+ 556          说明：将电脑上常见的R8-G8-B8格式转换成8位单片机常用的R5-G6-B5格式。
+ 557          **********************************************/
+ 558          uint RGB(uchar R,uchar G,uchar B)
+ 559          {
+ 560   1              return((uint)(R&0XF8)<<8|(uint)(G&0XFC)<<3|(uint)(B&0XF8)>>3);
+ 561   1      }
+ 562          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   4009    ----
+   CONSTANT SIZE    =   6872    ----
+   XDATA SIZE       =   ----     197
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

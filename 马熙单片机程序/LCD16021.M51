@@ -1,0 +1,197 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        01/30/2015  00:04:06  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE lcd16021.obj TO LCD16021
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  lcd16021.obj (LCD16021)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  LCD16021 (LCD16021)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0011H     UNIT         ?DT?LCD16021
+            DATA    0019H     0001H     UNIT         _DATA_GROUP_
+            IDATA   001AH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     008CH     UNIT         ?C_C51STARTUP
+            CODE    008FH     0031H     UNIT         ?PR?_DELAY1US?LCD16021
+            CODE    00C0H     001EH     UNIT         ?PR?LCD1602_INIT?LCD16021
+            CODE    00DEH     001BH     UNIT         ?PR?MAIN?LCD16021
+            CODE    00F9H     0018H     UNIT         ?PR?_LCD1602_WRITECOM?LCD16021
+            CODE    0111H     0015H     UNIT         ?PR?_LCD1602_WRITEDATA?LCD16021
+            CODE    0126H     0014H     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   LCD16021 (LCD16021)
+
+
+SEGMENT                                   DATA_GROUP 
+  +--> CALLED SEGMENT                   START    LENGTH
+-------------------------------------------------------
+?C_C51STARTUP                           -----    -----
+  +--> ?PR?MAIN?LCD16021
+  +--> ?C_INITSEG
+
+?PR?MAIN?LCD16021                       0019H    0001H
+
+
+
+UNRESOLVED EXTERNAL SYMBOLS:
+   LCDINIT
+   _LCDWRITEDATA
+
+
+
+SYMBOL TABLE OF MODULE:  LCD16021 (LCD16021)
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/30/2015  00:04:06  PAGE 2
+
+
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        LCD16021
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:00A0H         PUBLIC        P2
+  D:0008H         PUBLIC        PuZh
+  C:0111H         PUBLIC        _LCD1602_WriteData
+  C:00A2H         PUBLIC        _Delay1us
+  C:00C0H         PUBLIC        LCD1602_Init
+  B:00A0H.6       PUBLIC        LCD1602_RS
+  C:00DEH         PUBLIC        main
+  B:00A0H.5       PUBLIC        LCD1602_RW
+  C:00F9H         PUBLIC        _LCD1602_WriteCom
+  B:00A0H.7       PUBLIC        LCD1602_E
+  C:0095H         SYMBOL        L?0020
+  C:009EH         SYMBOL        L?0021
+  -------         PROC          L?0019
+  -------         ENDPROC       L?0019
+  C:0095H         SYMBOL        L?0020
+  C:009EH         SYMBOL        L?0021
+  -------         PROC          _DELAY1US
+  D:0006H         SYMBOL        a
+  -------         DO            
+  D:0004H         SYMBOL        b
+  D:0006H         SYMBOL        c
+  -------         ENDDO         
+  C:00A2H         LINE#         10
+  C:00A2H         LINE#         11
+  C:00A2H         LINE#         13
+  C:00ABH         LINE#         14
+  C:00BFH         LINE#         15
+  -------         ENDPROC       _DELAY1US
+  -------         PROC          _LCD1602_WRITECOM
+  D:0003H         SYMBOL        com
+  C:00F9H         LINE#         35
+  C:00FBH         LINE#         36
+  C:00FBH         LINE#         37
+  C:00FDH         LINE#         38
+  C:00FFH         LINE#         39
+  C:0101H         LINE#         40
+  C:0103H         LINE#         41
+  C:0103H         LINE#         42
+  C:0103H         LINE#         43
+  C:0106H         LINE#         44
+  C:0108H         LINE#         45
+  C:010BH         LINE#         46
+  C:010BH         LINE#         47
+  C:010BH         LINE#         48
+  C:010BH         LINE#         49
+  C:010EH         LINE#         50
+  C:0110H         LINE#         51
+  -------         ENDPROC       _LCD1602_WRITECOM
+  -------         PROC          _LCD1602_WRITEDATA
+  D:0003H         SYMBOL        dat
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/30/2015  00:04:06  PAGE 3
+
+
+  C:0111H         LINE#         72
+  C:0113H         LINE#         73
+  C:0113H         LINE#         74
+  C:0115H         LINE#         75
+  C:0117H         LINE#         76
+  C:0119H         LINE#         77
+  C:011BH         LINE#         78
+  C:011BH         LINE#         79
+  C:011BH         LINE#         80
+  C:011EH         LINE#         81
+  C:0120H         LINE#         82
+  C:0120H         LINE#         83
+  C:0120H         LINE#         84
+  C:0120H         LINE#         85
+  C:0123H         LINE#         86
+  C:0125H         LINE#         87
+  -------         ENDPROC       _LCD1602_WRITEDATA
+  -------         PROC          LCD1602_INIT
+  C:00C0H         LINE#         105
+  C:00C0H         LINE#         106
+  C:00C0H         LINE#         107
+  C:00C5H         LINE#         108
+  C:00CAH         LINE#         109
+  C:00CFH         LINE#         110
+  C:00D4H         LINE#         111
+  C:00D9H         LINE#         112
+  -------         ENDPROC       LCD1602_INIT
+  -------         PROC          MAIN
+  -------         DO            
+  D:0019H         SYMBOL        i
+  -------         ENDDO         
+  C:00DEH         LINE#         136
+  C:00DEH         LINE#         137
+  C:00DEH         LINE#         139
+  C:00E1H         LINE#         140
+  C:00E4H         LINE#         141
+  C:00E4H         LINE#         142
+  C:00EEH         LINE#         143
+  C:00F7H         LINE#         144
+  C:00F7H         LINE#         145
+  C:00F7H         LINE#         146
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        LCD16021
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LCD1602_WRITEDATA?LCD16021
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?LCD1602_INIT?LCD16021
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  lcd16021.obj (LCD16021)
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  LCDINIT
+    MODULE:  lcd16021.obj (LCD16021)
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/30/2015  00:04:06  PAGE 4
+
+
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  LCDINIT
+    MODULE:  lcd16021.obj (LCD16021)
+    ADDRESS: 00DFH
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  lcd16021.obj (LCD16021)
+    ADDRESS: 00ECH
+
+Program Size: data=27.0 xdata=0 code=314
+LINK/LOCATE RUN COMPLETE.  6 WARNING(S),  0 ERROR(S)

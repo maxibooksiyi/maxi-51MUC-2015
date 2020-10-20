@@ -1,0 +1,445 @@
+C51 COMPILER V9.01   SNAKE                                                                 02/15/2015 17:15:45 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SNAKE
+OBJECT MODULE PLACED IN snake.OBJ
+COMPILER INVOKED BY: C:\KeilMDK\C51\BIN\C51.EXE snake.c LARGE BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*********************************************************************
+   2           *
+   3           *                          贪吃蛇游戏核心程序
+   4           *
+   5           *********************************************************************
+   6           * 文件名: snake.c
+   7           * 描述: 贪吃蛇游戏核心程序
+   8           * 公司: 爱晶电子
+   9           * 作者                         日期                            注释
+  10           *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  11           * 王伟民                               2010/3/20                               原始文件
+  12           ********************************************************************/
+  13          
+  14          #include "stc.h"/*包含STC单片机头文件*/
+  15          #include "top51.h"/*包含TOP51开发板头文件*/
+  16          #include "key_sweep.h"
+  17          #include "LCM/ILI9325.h"
+  18          #include "GUI/gui.h"
+  19          #include "snake.h"
+  20          #include "delay.h"/*包含爱晶电子提供延时函数头文件*/
+  21          
+  22           
+  23          sbit KEY1=P2^3;
+  24          sbit KEY2=P2^2;
+  25          sbit KEY3=P2^1;
+  26          sbit KEY4=P2^0;
+  27          
+  28                  
+  29          //=================================================================
+  30          //    使用结构体定义变量,使程序更加清楚
+  31          //=================================================================
+  32          struct 
+  33          {
+  34                  uchar X;        //食物位置
+  35                  uchar Y;                         
+  36                  uchar Yes;
+  37          }Food;  //定义食物结构体
+  38          
+  39          
+  40          struct 
+  41          {
+  42                  uchar X[SNAKE_MAX_LONG];
+  43                  uchar Y[SNAKE_MAX_LONG];
+  44                  uchar Long;                     //蛇的长度
+  45                  uchar Life;                     //蛇的生命
+  46                  uchar Score;                    //蛇的分数
+  47                  uchar Level;                    //蛇的等级              
+  48          }Snake; //定义蛇结构体
+  49          
+  50          uchar Key_V_temp=Key_Right;             //取出上次按键值
+  51          uchar Over;             //=1表示本轮或全部优秀结束
+  52          
+  53          
+  54          //=================================================================
+  55          //函数名称：void Init_time(void)
+C51 COMPILER V9.01   SNAKE                                                                 02/15/2015 17:15:45 PAGE 2   
+
+  56          //函数功能：定时器0 : 控制蛇的运动速度
+  57          //定时器1 : 用于产生随机数种子 ，用于放置食物
+  58          //入口参数：无
+  59          //出口参数：无
+  60          //=================================================================
+  61          void Init_time (void)
+  62          {
+  63   1              TMOD=0x11;/*设置定时器0、1为工作方式1*/
+  64   1              TH0=0xb8;/*T0重新置初值*/
+  65   1              TL0=0;
+  66   1      //      TH1=0X00;/*T1重新置初值*/
+  67   1      //      TL1=0X00;
+  68   1              ET0=1;/*开定时器0中断*/
+  69   1              //ET1=1;/*开定时器1中断*/
+  70   1              EA=1;/*开总中断*/
+  71   1              TR0=1;/*启动定时器0*/
+  72   1              TR1=1;/*启动定时器1*/
+  73   1      }
+  74          
+  75          /*---中断服务程序---*/
+  76          void timer0(void) interrupt 1
+  77          {
+  78   1              unsigned int t;
+  79   1              unsigned char a;
+  80   1              TH0=0xb8;/*T0重新置初值*/
+  81   1              TL0=0;
+  82   1              a++;
+  83   1              /*每次中断设计为0.01S*/
+  84   1              /*修改下句可以调整游戏速度*/
+  85   1              //t=120-Snake.Level*10;
+  86   1      t=100;
+  87   1              if (a>t)/*设定时间到了吗？*/
+  88   1              //if (a>100)/*设定时间到了吗？*/
+  89   1              {
+  90   2                      a=0;/*是，时间到*/
+  91   2                      COL0=0;P0=0;COL1=0;COL2=0;COL3=0;/*暂停键盘扫描，避免数码管上出现乱码显示*/
+  92   2              Run_SNAKE();
+  93   2                      P0=0;/*本句作用：在键盘扫描过程中禁止4位数码管显示，避免数码管上出现乱码显示*/
+  94   2              }
+  95   1      }
+  96          
+  97          
+  98          //void timer1 (void) interrupt 3
+  99          //{
+ 100          //      TH1=0X00;
+ 101          //      TL1=0X00;
+ 102          //}
+ 103          
+ 104          
+ 105          //=================================================================
+ 106          //函数名称：Trun_On_Point     Trun_Off_Point (uchar x,uchar y)
+ 107          //函数功能：点亮或者熄灭一个点。用于显示蛇身体
+ 108          //入口参数：无
+ 109          //出口参数：无
+ 110          //特别说明：此 Trun_On，函数换成其他的就可以兼容其他的液晶
+ 111          //          入8*8 点阵   12864 等
+ 112          //=================================================================
+ 113          void Trun_On_Point (uchar x,uint y,uint color)
+ 114          {
+ 115   1              GUI_box((8*(x+1)),(8*(y+1)),(8*(x+2)),(8*(y+2)),color);
+ 116   1      }
+ 117          
+C51 COMPILER V9.01   SNAKE                                                                 02/15/2015 17:15:45 PAGE 3   
+
+ 118          void Trun_Off_Point (uchar x,uint y)
+ 119          {
+ 120   1              GUI_box((8*(x+1)),(8*(y+1)),(8*(x+2)),(8*(y+2)),0x07ff);        
+ 121   1      }
+ 122          
+ 123          //=================================================================
+ 124          //函数名称：void Init_SNAKE(void)  
+ 125          //函数功能：绘制游戏界面，初始化游戏等级等参数
+ 126          //入口参数：无
+ 127          //出口参数：无
+ 128          //=================================================================
+ 129          void Init_SNAKE(void)   
+ 130          {
+ 131   1              uchar i;
+ 132   1      
+ 133   1              Init_time();
+ 134   1              
+ 135   1              //***********初始化蛇参数********************//
+ 136   1              Snake.Long=2;                           //定义初始化蛇的长度
+ 137   1              Snake.Life=0;                           //初始化蛇还活着
+ 138   1              Snake.Score=0;
+ 139   1              Food.Yes=1;                                     
+ 140   1              Key_Value=Key_Right;
+ 141   1              Over=0;
+ 142   1      
+ 143   1      
+ 144   1      
+ 145   1              for(i=0;i<Snake.Long;i++)               //将蛇给赋值
+ 146   1              {
+ 147   2                      Snake.X[i]=i+2;
+ 148   2                      Snake.Y[i]=2;
+ 149   2              }
+ 150   1      
+ 151   1              //***********绘制游戏界面********************//
+ 152   1         GUI_clearscreen(0x07ff);//清屏
+ 153   1              GUI_box(0,200,175,219,0x07ff);
+ 154   1              //GUI_sprintf_HZ(0, 0, 0x07ff,0x001f);//显示预定义汉字字符串
+ 155   1              GUI_rectangle(8-1,8-1,165+1,210+1,0xaa);//绘制一个矩形框, 0-127
+ 156   1              GUI_sprintf_string(0,8,"SCORE",0x8b00,0xBE5F);
+ 157   1              GUI_sprintf_chartodec(0,24,Snake.Score,0xf800,0xBE5F);
+ 158   1              GUI_sprintf_string(0,81,"LEVEL",0x8b00,0xBE5F);
+ 159   1              GUI_sprintf_chartodec(0,107,Snake.Level,0xf800,0xBE5F);
+ 160   1                                              
+ 161   1              for(i=0;i<Snake.Long;i++)               //将蛇给画出来
+ 162   1              {
+ 163   2                      Trun_On_Point(Snake.X[i],Snake.Y[i],0x001f);
+ 164   2              }                                                       
+ 165   1      }
+ 166          //=================================================================
+ 167          //函数名称：void Display_dead(uchar i) 
+ 168          //函数功能：显示死亡界面
+ 169          //入口参数：无
+ 170          //出口参数：无
+ 171          //=================================================================
+ 172          void Display_dead(void)
+ 173          {
+ 174   1              GUI_sprintf_string(60,140,"GAME OVER",0xcc88,0xBE5F); 
+ 175   1              Over=1;
+ 176   1              TR0=0;/*停止定时器0，蛇停止运动*/
+ 177   1              P0=0;/*本句作用：在键盘扫描过程中禁止4位数码管显示，避免数码管上出现乱码显示*/
+ 178   1      }
+ 179          //=================================================================
+C51 COMPILER V9.01   SNAKE                                                                 02/15/2015 17:15:45 PAGE 4   
+
+ 180          //函数名称：void Display_Pass(uchar i)
+ 181          //函数功能：显示过关界面
+ 182          //入口参数：无
+ 183          //出口参数：无
+ 184          //=================================================================
+ 185          void Display_Pass(void)
+ 186          {
+ 187   1              Snake.Level++;  
+ 188   1              GUI_sprintf_string(68,124,"You are",0xcc88,0xBE5F); 
+ 189   1              GUI_sprintf_string(80,156,"WIN!",0xcc88,0xBE5F); 
+ 190   1              Over=1;
+ 191   1              TR0=0;/*停止定时器0，蛇停止运动*/
+ 192   1              P0=0;/*本句作用：在键盘扫描过程中禁止4位数码管显示，避免数码管上出现乱码显示*/
+ 193   1      
+ 194   1      }                                                                                                                                                                                                                                                        
+ 195          
+ 196          //红外键值读取
+ 197           
+ 198          
+ 199            
+ 200          //=================================================================
+ 201          //函数名称：void Run_SNAKE(void)
+ 202          //函数功能：蛇运动函数 （游戏精华）
+ 203          //入口参数：无
+ 204          //出口参数：无
+ 205          //=================================================================
+ 206                          
+ 207          void Run_SNAKE(void)
+ 208          {
+ 209   1              
+ 210   1              uchar i=0 ;
+ 211   1               uchar tmp;     
+ 212   1              //下面是键盘扫描程序
+ 213   1               KEY1=1;
+ 214   1               KEY2=1;
+ 215   1               KEY3=1;
+ 216   1               KEY4=1;
+ 217   1               if (KEY1==0)
+ 218   1                  {Key_Value=3;}      //上
+ 219   1                      else  if(KEY2==0)
+ 220   1                      {Key_Value=5;}   //下
+ 221   1                      else  if(KEY3==0)
+ 222   1                      {Key_Value=1;}   //左
+ 223   1                      else  if(KEY4==0)
+ 224   1                      {Key_Value=7;}   //右
+ 225   1                      else
+ 226   1                      {Key_Value=tmp;
+ 227   2                       }       
+ 228   1              tmp=Key_Value;          
+ 229   1              /*********************根据按键选择蛇的运动方向*******************/
+ 230   1              if((Key_Value==Key_Right&&Key_V_temp!=Key_Left)||(Key_Value==Key_Left&&Key_V_temp==Key_Right))
+ 231   1              {
+ 232   2                      Trun_Off_Point(Snake.X[0],Snake.Y[0]);         //先把蛇尾给熄灭掉 
+ 233   2      
+ 234   2                      for(i=0;i<Snake.Long-1;i++)                    //蛇身都是它前一段的蛇身的位置
+ 235   2                      {
+ 236   3                              Snake.X[i]=Snake.X[i+1];
+ 237   3                              Snake.Y[i]=Snake.Y[i+1];
+ 238   3                      } 
+ 239   2      
+ 240   2                      Snake.X[Snake.Long-1]=Snake.X[Snake.Long-2]+1;
+ 241   2                      Snake.Y[Snake.Long-1]=Snake.Y[Snake.Long-2]+0; //蛇头向你要求的方向移动
+C51 COMPILER V9.01   SNAKE                                                                 02/15/2015 17:15:45 PAGE 5   
+
+ 242   2                      
+ 243   2                      for(i=0;i<Snake.Long;i++)                                   //这个让蛇显示出来的函数
+ 244   2                      {
+ 245   3                              Trun_On_Point(Snake.X[i],Snake.Y[i],0x001f);
+ 246   3                      }
+ 247   2                      Key_V_temp=Key_Right;
+ 248   2              }
+ 249   1      
+ 250   1              if((Key_Value==Key_Left&&Key_V_temp!=Key_Right)||(Key_Value==Key_Right&&Key_V_temp==Key_Left))
+ 251   1              {
+ 252   2      
+ 253   2                      Trun_Off_Point(Snake.X[0],Snake.Y[0]);             //先把蛇尾给熄灭掉 
+ 254   2                      
+ 255   2                      for(i=0;i<Snake.Long-1;i++)                     //蛇身都是它前一段的蛇身的位置
+ 256   2                      {
+ 257   3                              Snake.X[i]=Snake.X[i+1];
+ 258   3                              Snake.Y[i]=Snake.Y[i+1];
+ 259   3                      } 
+ 260   2                      
+ 261   2                      Snake.X[Snake.Long-1]=Snake.X[Snake.Long-2]-1;
+ 262   2                      Snake.Y[Snake.Long-1]=Snake.Y[Snake.Long-2]+0; //蛇头向你要求的方向移动
+ 263   2                      
+ 264   2                      for(i=0;i<Snake.Long;i++)                                   //这个让蛇显示出来的函数
+ 265   2                      {
+ 266   3                              Trun_On_Point(Snake.X[i],Snake.Y[i],0x001f);
+ 267   3                      }
+ 268   2                      Key_V_temp=Key_Left;
+ 269   2              }
+ 270   1              if(( Key_Value==Key_Up&&Key_V_temp!=Key_Down)||( Key_Value==Key_Down&&Key_V_temp==Key_Up))
+ 271   1              {
+ 272   2                      Trun_Off_Point(Snake.X[0],Snake.Y[0]);            //先把蛇尾给熄灭掉 
+ 273   2                      
+ 274   2                      for(i=0;i<Snake.Long-1;i++)                   //蛇身都是它前一段的蛇身的位置
+ 275   2                      {
+ 276   3                              Snake.X[i]=Snake.X[i+1];
+ 277   3                              Snake.Y[i]=Snake.Y[i+1];
+ 278   3                      } 
+ 279   2                      
+ 280   2                      Snake.X[Snake.Long-1]=Snake.X[Snake.Long-2]+0;
+ 281   2                      Snake.Y[Snake.Long-1]=Snake.Y[Snake.Long-2]-1; //蛇头向你要求的方向移动
+ 282   2                      
+ 283   2                      for(i=0;i<Snake.Long;i++)                                  //这个让蛇显示出来的函数
+ 284   2                      {
+ 285   3                              Trun_On_Point(Snake.X[i],Snake.Y[i],0x001f);
+ 286   3                      }
+ 287   2                      Key_V_temp=Key_Up;
+ 288   2              }
+ 289   1              if(( Key_Value==Key_Down&&Key_V_temp!=Key_Up)||( Key_Value==Key_Up&&Key_V_temp==Key_Down))
+ 290   1              {
+ 291   2                      Trun_Off_Point(Snake.X[0],Snake.Y[0]);           //先把蛇尾给熄灭掉 
+ 292   2                      
+ 293   2                      for(i=0;i<Snake.Long-1;i++)                  //蛇身都是它前一段的蛇身的位置
+ 294   2                      {
+ 295   3                              Snake.X[i]=Snake.X[i+1];
+ 296   3                              Snake.Y[i]=Snake.Y[i+1];
+ 297   3                      } 
+ 298   2                      
+ 299   2                      Snake.X[Snake.Long-1]=Snake.X[Snake.Long-2]+0;
+ 300   2                      Snake.Y[Snake.Long-1]=Snake.Y[Snake.Long-2]+1; //蛇头向你要求的方向移动
+ 301   2                      
+ 302   2                      for(i=0;i<Snake.Long;i++)                                  //这个让蛇显示出来的函数
+ 303   2                      {
+C51 COMPILER V9.01   SNAKE                                                                 02/15/2015 17:15:45 PAGE 6   
+
+ 304   3                              Trun_On_Point(Snake.X[i],Snake.Y[i],0x001f);
+ 305   3                      }
+ 306   2                      Key_V_temp=Key_Down;
+ 307   2              }
+ 308   1              
+ 309   1      
+ 310   1              /****************根据按键选择蛇的运动程序结束*******************/
+ 311   1              /////////////////////////////////////////////////////////////////
+ 312   1      
+ 313   1              
+ 314   1              /************************判断蛇是否死亡***********************/
+ 315   1              if(Snake.X[Snake.Long-1]>=22||Snake.Y[Snake.Long-1]>=35)//判蛇头是否撞到墙壁
+ 316   1              {
+ 317   2                      Snake.Life=1;
+ 318   2              }
+ 319   1              for(i=3;i<Snake.Long;i++)//从第三节开始判断蛇头是否咬到自己
+ 320   1              {
+ 321   2                      if(Snake.X[i]==Snake.X[0]&&Snake.Y[i]==Snake.Y[0])
+ 322   2                      {
+ 323   3                              Snake.Life=1;
+ 324   3                      }
+ 325   2              }
+ 326   1              if(Snake.Life==1)         //if the snake over
+ 327   1              {
+ 328   2                      Key_V_temp=Key_Value;
+ 329   2                      Display_dead();
+ 330   2              }
+ 331   1              /******************判断蛇是否死亡程序结束***********************/
+ 332   1              /////////////////////////////////////////////////////////////////
+ 333   1      
+ 334   1      
+ 335   1              /************************判断蛇是否最长了**********************/
+ 336   1              if(Snake.Long==SNAKE_MAX_LONG)
+ 337   1              {
+ 338   2                      Key_V_temp=Key_Value;
+ 339   2                      Display_Pass();
+ 340   2              }
+ 341   1              /////////////////////////////////////////////////////////////////                                                                                  
+ 342   1      
+ 343   1              /*************************判蛇是否吃到食物**********************/               
+ 344   1              if(Snake.X[Snake.Long-1]==Food.X&&Snake.Y[Snake.Long-1]==Food.Y)//
+ 345   1              {
+ 346   2                      //Trun_Off_Point(Food.X,Food.Y);                 //消隐食物
+ 347   2                      Snake.Long++;//蛇节数加1
+ 348   2                      Snake.X[Snake.Long-1]=Food.X;
+ 349   2                      Snake.Y[Snake.Long-1]=Food.Y;
+ 350   2                      Snake.Score+=10;
+ 351   2                      GUI_sprintf_chartodec(100,24,Snake.Score,0xcc88,0xBE5F);
+ 352   2                      Food.Yes=1;  //食物标志置1
+ 353   2              }
+ 354   1              /////////////////////////////////////////////////////////////////
+ 355   1              
+ 356   1      
+ 357   1              /***************************放果子程序*************************/
+ 358   1              if(Food.Yes==0)
+ 359   1              {
+ 360   2                      Trun_On_Point(Food.X,Food.Y,0xf81f);
+ 361   2              }                                                                                          
+ 362   1              if(Food.Yes==1)
+ 363   1              {
+ 364   2                      while(1)
+ 365   2                      {
+C51 COMPILER V9.01   SNAKE                                                                 02/15/2015 17:15:45 PAGE 7   
+
+ 366   3                              Food.X=TL1/12;                          //获得随机数
+ 367   3                              if (Food.X>21)Food.Y=Food.Y-21;
+ 368   3                              Food.Y=TL1/7;
+ 369   3                              if (Food.Y>34)Food.Y=Food.Y-34;
+ 370   3      
+ 371   3                          for(i=0;i<Snake.Long;i++)                           //判断产生的食物坐标是否和蛇身重合
+ 372   3                              {
+ 373   4                                      if((Food.X==Snake.X[i])&&(Food.X==Snake.Y[i]))
+ 374   4                                              break;
+ 375   4                              }
+ 376   3                              if(i==Snake.Long)
+ 377   3                              {
+ 378   4                                      Food.Yes=0;
+ 379   4                                      break;                                                          //产生有效的食物坐标
+ 380   4                              }
+ 381   3                      }
+ 382   2              }
+ 383   1      
+ 384   1      }
+ 385          
+ 386          
+ 387           
+ 388          
+ 389          void main(void)
+ 390          {       unsigned char i;
+ 391   1          top51_init();/*top51主板初始化*/
+ 392   1              delayms(20);
+ 393   1              
+ 394   1              ILI9325_initial();/*TFT彩屏初始化*/
+ 395   1              delayms(20);
+ 396   1      
+ 397   1         
+ 398   1         Init_SNAKE() ;
+ 399   1         Key_Value=7;
+ 400   1      
+ 401   1       while(1)
+ 402   1       {
+ 403   2        
+ 404   2          
+ 405   2       Run_SNAKE();// 蛇运动函数
+ 406   2       while(1);
+ 407   2       }
+ 408   1       
+ 409   1      }        
+*** WARNING C280 IN LINE 390 OF SNAKE.C: 'i': unreferenced local variable
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2143    ----
+   CONSTANT SIZE    =     35    ----
+   XDATA SIZE       =     49       9
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

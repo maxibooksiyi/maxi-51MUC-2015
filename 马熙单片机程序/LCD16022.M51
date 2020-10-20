@@ -1,0 +1,166 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        01/30/2015  12:21:53  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE LCD16022.obj TO LCD16022
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  LCD16022.obj (LCD16022)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  LCD16022 (LCD16022)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     003BH     UNIT         ?PR?MAIN?LCD16022
+            CODE    003EH     0036H     UNIT         ?PR?_DELAY?LCD16022
+            CODE    0074H     001AH     UNIT         ?CO?LCD16022
+            CODE    008EH     0014H     UNIT         ?PR?LCD_INIT?LCD16022
+            CODE    00A2H     000CH     UNIT         ?C_C51STARTUP
+            CODE    00AEH     000AH     UNIT         ?PR?_LCD_WCOM?LCD16022
+            CODE    00B8H     000AH     UNIT         ?PR?_LCD_WDAT?LCD16022
+
+
+
+OVERLAY MAP OF MODULE:   LCD16022 (LCD16022)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?LCD16022
+
+?PR?MAIN?LCD16022
+  +--> ?PR?LCD_INIT?LCD16022
+  +--> ?PR?_LCD_WCOM?LCD16022
+  +--> ?CO?LCD16022
+  +--> ?PR?_LCD_WDAT?LCD16022
+  +--> ?PR?_DELAY?LCD16022
+
+?PR?LCD_INIT?LCD16022
+  +--> ?PR?_LCD_WCOM?LCD16022
+
+?PR?_LCD_WCOM?LCD16022
+  +--> ?PR?_DELAY?LCD16022
+
+?PR?_LCD_WDAT?LCD16022
+  +--> ?PR?_DELAY?LCD16022
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/30/2015  12:21:53  PAGE 2
+
+
+
+
+
+SYMBOL TABLE OF MODULE:  LCD16022 (LCD16022)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        LCD16022
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:00A0H         PUBLIC        P2
+  C:0074H         PUBLIC        table
+  C:0056H         PUBLIC        _delay
+  C:0003H         PUBLIC        main
+  C:0085H         PUBLIC        table1
+  C:00B8H         PUBLIC        _lcd_wdat
+  C:008EH         PUBLIC        lcd_init
+  C:00AEH         PUBLIC        _lcd_wcom
+  B:00A0H.7       PUBLIC        en
+  B:00A0H.6       PUBLIC        rs
+  B:00A0H.5       PUBLIC        rw
+  -------         PROC          L?0022
+  -------         ENDPROC       L?0022
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        n
+  -------         DO            
+  D:0006H         SYMBOL        x
+  D:0004H         SYMBOL        y
+  -------         ENDDO         
+  C:0056H         LINE#         10
+  C:0056H         LINE#         11
+  C:0056H         LINE#         13
+  C:005FH         LINE#         14
+  C:0073H         LINE#         15
+  -------         ENDPROC       _DELAY
+  -------         PROC          _LCD_WCOM
+  D:0003H         SYMBOL        com
+  C:00AEH         LINE#         16
+  C:00B0H         LINE#         17
+  C:00B0H         LINE#         18
+  C:00B2H         LINE#         19
+  C:00B2H         LINE#         20
+  C:00B2H         LINE#         21
+  C:00B2H         LINE#         22
+  C:00B2H         LINE#         23
+  C:00B2H         LINE#         24
+  C:00B5H         LINE#         25
+  C:00B7H         LINE#         26
+  -------         ENDPROC       _LCD_WCOM
+  -------         PROC          _LCD_WDAT
+  D:0003H         SYMBOL        dat
+  C:00B8H         LINE#         27
+  C:00BAH         LINE#         28
+  C:00BAH         LINE#         29
+  C:00BCH         LINE#         30
+  C:00BCH         LINE#         31
+BL51 BANKED LINKER/LOCATER V6.22                                                      01/30/2015  12:21:53  PAGE 3
+
+
+  C:00BCH         LINE#         32
+  C:00BCH         LINE#         33
+  C:00BCH         LINE#         34
+  C:00BCH         LINE#         35
+  C:00BFH         LINE#         37
+  C:00C1H         LINE#         38
+  -------         ENDPROC       _LCD_WDAT
+  -------         PROC          LCD_INIT
+  C:008EH         LINE#         39
+  C:008EH         LINE#         40
+  C:008EH         LINE#         41
+  C:0093H         LINE#         42
+  C:0098H         LINE#         43
+  C:009DH         LINE#         44
+  -------         ENDPROC       LCD_INIT
+  -------         PROC          MAIN
+  -------         DO            
+  D:0002H         SYMBOL        n
+  D:0002H         SYMBOL        m
+  -------         ENDDO         
+  C:0003H         LINE#         46
+  C:0003H         LINE#         47
+  C:0003H         LINE#         48
+  C:0005H         LINE#         49
+  C:0008H         LINE#         50
+  C:000DH         LINE#         51
+  C:000DH         LINE#         52
+  C:000DH         LINE#         53
+  C:0016H         LINE#         54
+  C:001DH         LINE#         55
+  C:0021H         LINE#         56
+  C:0026H         LINE#         57
+  C:0028H         LINE#         58
+  C:0028H         LINE#         59
+  C:0031H         LINE#         60
+  C:0038H         LINE#         61
+  C:003CH         LINE#         62
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        LCD16022
+
+Program Size: data=9.0 xdata=0 code=194
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,137 @@
+C51 COMPILER V9.01   LCD1602                                                               02/01/2015 20:50:52 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE LCD1602
+OBJECT MODULE PLACED IN LCD1602.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE LCD1602.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include<reg51.h>
+   2          sbit LCD1602_E=P2^7; //定义引脚
+   3          sbit LCD1602_RS=P2^6;
+   4          sbit LCD1602_RW=P2^5;
+   5          
+   6          
+   7          
+   8          /*******************************************************************************
+   9          * 函数名         : Delay1us
+  10          * 函数功能                 : 延时函数，延时1us
+  11          * 输入           : a
+  12          * 输出           : 无
+  13          *******************************************************************************/
+  14          
+  15          void Delay1us(unsigned int a)
+  16          {
+  17   1              unsigned int b,c;
+  18   1              for(c=a;c>0;c--)
+  19   1                      for(b=110;b>0;b--);
+  20   1      }
+  21          /*******************************************************************************
+  22          * 函数名         : LCD1602_WriteCom
+  23          * 函数功能                 : 向LCD写入一个字节的命令
+  24          * 输入           : com
+  25          * 输出           : 无
+  26          *******************************************************************************/
+  27                   //当没有定义这个LCD1602_4PINS时
+  28          void LCD1602_WriteCom(unsigned char com)          //写入命令
+  29          {
+  30   1              LCD1602_E=0;
+  31   1              LCD1602_RS=0;
+  32   1              LCD1602_RW=0;
+  33   1               Delay1us(20);
+  34   1              P0=com;
+  35   1              Delay1us(20);
+  36   1              LCD1602_E=1;
+  37   1              Delay1us(20);
+  38   1              LCD1602_E=0;
+  39   1      }
+  40          /*******************************************************************************
+  41          * 函数名         : LCD1602_WriteData
+  42          * 函数功能                 : 向LCD写入一个字节的数据
+  43          * 输入           : dat
+  44          * 输出           : 无
+  45          *******************************************************************************/                   
+  46                             
+  47          void LCD1602_WriteData(unsigned char dat)                       //写入数据
+  48          {
+  49   1              LCD1602_E=0;
+  50   1              LCD1602_RS=1;
+  51   1              LCD1602_RW=0;
+  52   1              Delay1us(20);
+  53   1              P0=dat;
+  54   1              Delay1us(20);
+  55   1              LCD1602_E=1;
+C51 COMPILER V9.01   LCD1602                                                               02/01/2015 20:50:52 PAGE 2   
+
+  56   1              Delay1us(20);
+  57   1              LCD1602_E=0;
+  58   1      }
+  59          
+  60          /*******************************************************************************
+  61          * 函数名         : LCD1602_Init()
+  62          * 函数功能                 : 初始化LCD屏
+  63          * 输入           : 无
+  64          * 输出           : 无
+  65          *******************************************************************************/                   
+  66          
+  67          void LCD1602_Init()                                               //LCD初始化子程序
+  68          {
+  69   1              LCD1602_WriteCom(0x38);  //开显示
+  70   1              LCD1602_WriteCom(0x0c);  //开显示不显示光标
+  71   1              LCD1602_WriteCom(0x06);  //写一个指针加1
+  72   1              LCD1602_WriteCom(0x01);  //清屏
+  73   1              LCD1602_WriteCom(0x80);  //设置数据指针起点
+  74   1      }
+  75          
+  76          
+  77          unsigned char code PuZh[] ="   Hello World  ";
+  78          unsigned char code PuZh1[]="I'm MaXi        ";
+  79          void main()
+  80          {
+  81   1      unsigned char i;
+  82   1       LCD1602_Init();
+  83   1                      Delay1us(0);
+  84   1      
+  85   1       
+  86   1       
+  87   1                         LCD1602_WriteCom(0x80);
+  88   1                                                                                                                               
+  89   1      for     (i=0;i<16;i++)
+  90   1                 {
+  91   2                
+  92   2                      LCD1602_WriteData(PuZh[i]);     
+  93   2                      Delay1us(2000);
+  94   2                      }
+  95   1                         while(1);
+  96   1              LCD1602_WriteCom(0xc0);
+  97   1                              for     (i=0;i<16;i++)
+  98   1                 {LCD1602_WriteData(PuZh1[i]);
+  99   2                       Delay1us(2000);
+ 100   2                       }
+ 101   1                       
+ 102   1                       
+ 103   1                       
+ 104   1                      
+ 105   1      
+ 106   1      }
+ 107          
+ 108           
+ 109          
+ 110          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    141    ----
+   CONSTANT SIZE    =     34    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.01   LCD1602                                                               02/01/2015 20:50:52 PAGE 3   
+
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

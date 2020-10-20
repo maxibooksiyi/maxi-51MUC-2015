@@ -1,0 +1,201 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\MX\Desktop\ÂíÎõ\led.uvproj
+Project File Date:  01/27/2015
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=9.0 xdata=0 code=61
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=9.0 xdata=0 code=54
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=9.0 xdata=0 code=55
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=9.0 xdata=0 code=61
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=9.0 xdata=0 code=61
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=9.0 xdata=0 code=61
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=9.0 xdata=0 code=61
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=9.0 xdata=0 code=61
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+led.c(11): warning C318: can't open file 'lcd.h'
+LED.C(34): warning C206: 'LcdInit': missing function-prototype
+LED.C(39): warning C206: 'LcdWriteCom': missing function-prototype
+LED.C(39): error C267: 'LcdWriteCom': requires ANSI-style prototype
+Target not created
+Build target 'Target 1'
+compiling led.c...
+linking...
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  led.obj (LED)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  LCDINIT
+    MODULE:  led.obj (LED)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _LCDWRITECOM
+    MODULE:  led.obj (LED)
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  LCDINIT
+    MODULE:  led.obj (LED)
+    ADDRESS: 0116H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITECOM
+    MODULE:  led.obj (LED)
+    ADDRESS: 0123H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  led.obj (LED)
+    ADDRESS: 012DH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITECOM
+    MODULE:  led.obj (LED)
+    ADDRESS: 013EH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  led.obj (LED)
+    ADDRESS: 014DH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  led.obj (LED)
+    ADDRESS: 0157H
+Program Size: data=29.0 xdata=0 code=392
+creating hex file from "led"...
+"led" - 0 Error(s), 9 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  led.obj (LED)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  LCDINIT
+    MODULE:  led.obj (LED)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _LCDWRITECOM
+    MODULE:  led.obj (LED)
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  LCDINIT
+    MODULE:  led.obj (LED)
+    ADDRESS: 0116H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITECOM
+    MODULE:  led.obj (LED)
+    ADDRESS: 0123H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  led.obj (LED)
+    ADDRESS: 012DH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITECOM
+    MODULE:  led.obj (LED)
+    ADDRESS: 013EH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  led.obj (LED)
+    ADDRESS: 014DH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _LCDWRITEDATA
+    MODULE:  led.obj (LED)
+    ADDRESS: 0157H
+Program Size: data=29.0 xdata=0 code=392
+creating hex file from "led"...
+"led" - 0 Error(s), 9 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_LCDWRITEDATA?LED
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?LCDINIT?LED
+*** WARNING L10: CANNOT DETERMINE ROOT SEGMENT
+Program Size: data=8.0 xdata=0 code=120
+creating hex file from "led"...
+"led" - 0 Error(s), 3 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=28.0 xdata=0 code=503
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=28.0 xdata=0 code=503
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=28.0 xdata=0 code=503
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=28.0 xdata=0 code=503
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=28.0 xdata=0 code=503
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=28.0 xdata=0 code=503
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=28.0 xdata=0 code=503
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling led.c...
+linking...
+Program Size: data=28.0 xdata=0 code=503
+creating hex file from "led"...
+"led" - 0 Error(s), 0 Warning(s).

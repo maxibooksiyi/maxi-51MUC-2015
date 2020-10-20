@@ -1,0 +1,194 @@
+C51 COMPILER V9.01   MAIN                                                                  02/13/2015 01:03:17 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\KeilMDK\C51\BIN\C51.EXE main.c LARGE BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*******************************************************************/
+   2          /*                      乒乓球游戏演示程序                     */
+   3          /*                                                                 */
+   4          /* 硬件平台: TOP51+12LE5A60S2   晶振：22.1184MHZ                 */ 
+   5          /* 软件平台: KEIL C51                                            */
+   6          /* 说明： 用SW0、SW1控制球拍位置，如果球拍不能接到球，就失败*/ 
+   7          /* TFT彩屏模块和12LE5A60S2的连接：                      */
+   8          /* TFT_RS（数据/命令，第4脚）           ---- P1.0               */
+   9          /* TFT_WR（写，第5脚）                          ---- P1.1               */
+  10          /* TFT_RD（读，第6脚）                          ---- P4.6               */
+  11          /* TFT_CS（片选，第15脚）                       ---- P4.5               */
+  12          /* TFT_RST（复位，第17脚）                      ---- P4.4               */
+  13          /* TFT_DATA（8位数据口，第7--14脚）     ---- P0                         */
+  14          /* 公司: 爱晶电子                                                   */
+  15          /* 网址：http://www.ajdz.net                                        */
+  16          /* 作者                         日期                    注释                  */
+  17          /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  18          /* 王伟民            2010-5-4          原始程序*/
+  19          
+  20          #include "stc.h"/*包含STC单片机头文件*/
+  21          #include "top51.h"/*包含TOP51开发板头文件*/
+  22          #include "LCM/ILI9325.h"/*包含TFT彩屏驱动函数头文件*/
+  23          #include "GUI/gui.h"/*包含爱晶电子提供GUI函数头文件*/
+  24          #include "delay.h"/*包含爱晶电子提供延时函数头文件*/
+  25          //#include "uart.h"/*包含爱晶电子提供串口相关函数头文件*/
+  26          
+  27          unsigned char x=71,dir=1;
+  28          unsigned int y=166;
+  29          
+  30          unsigned char racket_x=20;
+  31          unsigned char racket_dir;
+  32          #define RACKET_HALF_LENGTH 20/*定义球拍半长度*/
+  33          
+  34          void main(void)
+  35          {
+  36   1              top51_init();/*top51主板初始化*/
+  37   1              delayms(20);
+  38   1                      
+  39   1              ILI9325_initial();/*TFT彩屏初始化*/
+  40   1              delayms(20);
+  41   1      
+  42   1              GUI_clearscreen(0);//清屏
+  43   1      
+  44   1              COL0=1;/*选中4位数码管的最右边一位，并使SW0-SW2可作为独立按键使用*/
+  45   1              P0=0;/*数码管不显示*/
+  46   1              
+  47   1              TMOD=0x11;/*设置定时器0、1为工作方式1*/
+  48   1      
+  49   1              TH0=0xac;/*T0重新置初值*/
+  50   1              TL0=0;
+  51   1      
+  52   1      
+  53   1              ET0=1;/*开定时器0中断*/
+  54   1              ET1=1;/*开定时器1中断*/
+  55   1              EA=1;/*开总中断*/
+C51 COMPILER V9.01   MAIN                                                                  02/13/2015 01:03:17 PAGE 2   
+
+  56   1      
+  57   1              TR0=1;/*启动定时器0*/
+  58   1              TR1=1;/*停止定时器1*/
+  59   1      
+  60   1              GUI_line(racket_x-RACKET_HALF_LENGTH,319,racket_x+RACKET_HALF_LENGTH,319,0xffff);/*画出球拍*/
+  61   1      
+  62   1              while(1)
+  63   1              {
+  64   2                      if (SW0==0) 
+  65   2                      {
+  66   3                              TR1=1;/*启动定时器1*/
+  67   3                              racket_dir=0;/*球拍朝左运动*/
+  68   3                      }
+  69   2                      /*如果SW0按下，*/
+  70   2                      else if (SW1==0)/*如果SW1按下，*/
+  71   2                      {
+  72   3                              TR1=1;/*启动定时器1*/
+  73   3                              racket_dir=1;/*球拍朝右运动*/
+  74   3                      }
+  75   2                      else 
+  76   2                      {
+  77   3                              TR1=0;/*停止定时器1*/
+  78   3                              TH1=0Xff;/*保证按下键时，响应时间最短，以实现对按键的快速响应*/
+  79   3                              TL1=0Xff;
+  80   3                      }
+  81   2              }
+  82   1      }
+  83          
+  84          
+  85          /*---球拍运动中断服务程序---*/
+  86          void timer1 (void) interrupt 3
+  87          {
+  88   1              TH1=0Xb8;/*T1重新置初值(10ms)*/
+  89   1              TL1=0X00;
+  90   1              COL0=0;
+  91   1              if (racket_dir==0)
+  92   1              {
+  93   2                      racket_x--;
+  94   2                      if (racket_x<RACKET_HALF_LENGTH) racket_x=RACKET_HALF_LENGTH;
+  95   2                      GUI_Point(racket_x+RACKET_HALF_LENGTH+1, 219, 0);/*消点*/
+  96   2                      GUI_Point(racket_x-RACKET_HALF_LENGTH, 219, 0XFFFF);/*画点*/
+  97   2              }
+  98   1              else 
+  99   1              {
+ 100   2                      racket_x++;
+ 101   2                      if (racket_x>239-RACKET_HALF_LENGTH) racket_x=175-RACKET_HALF_LENGTH;
+ 102   2                      GUI_Point(racket_x-RACKET_HALF_LENGTH-1, 219, 0);/*消点*/
+ 103   2                      GUI_Point(racket_x+RACKET_HALF_LENGTH, 219, 0XFFFF);/*画点*/
+ 104   2              }
+ 105   1              P0=0;
+ 106   1              COL0=1;
+ 107   1      }
+ 108          
+ 109          
+ 110          /*---小球运动中断服务程序---*/
+ 111          void Timer0_Routine(void) interrupt 1
+ 112          {
+ 113   1              unsigned char n;
+ 114   1              TH0=0xb8;/*T0重新置初值(10ms)*/
+ 115   1              TL0=0;
+ 116   1      
+ 117   1              COL0=0;
+C51 COMPILER V9.01   MAIN                                                                  02/13/2015 01:03:17 PAGE 3   
+
+ 118   1              GUI_Point(x, y, 0);/*消点*/
+ 119   1      
+ 120   1              /*球运动到下一位置*/
+ 121   1              switch (dir)
+ 122   1              {
+ 123   2                      case 1: x++;y--;break;/*方向1运动*/
+ 124   2                      case 2: x--;y--;break;/*方向2运动*/
+ 125   2                      case 3: x--;y++;break;/*方向3运动*/
+ 126   2                      case 4: x++;y++;break;/*方向4运动*/
+ 127   2              }
+ 128   1      
+ 129   1              GUI_Point(x, y, 0xffff);/*画点*/
+ 130   1              /*是否碰到边界检测,如碰到边界，则改变运动方向*/
+ 131   1              if (x==0)
+ 132   1              {
+ 133   2                      if (dir==2)     dir=1;/*方向1运动*/
+ 134   2                              else dir=4;
+ 135   2              }
+ 136   1              if (x==175)
+ 137   1              {
+ 138   2                      if (dir==1)     dir=2;/*方向1运动*/
+ 139   2                              else dir=3;
+ 140   2              }
+ 141   1              if (y==0)
+ 142   1              {
+ 143   2                      if (dir==1)     dir=4;/*方向1运动*/
+ 144   2                              else dir=3;
+ 145   2              }
+ 146   1              if (y==218)
+ 147   1              {
+ 148   2                      if ((x<racket_x+RACKET_HALF_LENGTH)&&(x>racket_x-RACKET_HALF_LENGTH))/*判断是否被球拍接住*/
+ 149   2                      {
+ 150   3                              /*被球拍接住*/
+ 151   3                              if (dir==3)     dir=2;/*方向1运动*/
+ 152   3                              else dir=1;
+ 153   3                      }
+ 154   2                      else
+ 155   2                      {
+ 156   3                              /*没有被球拍接住*/
+ 157   3                              GUI_sprintf_string(84,140,"GAME OVER",0xcc88,0xBE5F); /*显示游戏结束*/
+ 158   3                              while(1);
+ 159   3                      }
+ 160   2              }
+ 161   1              P0=0;
+ 162   1              COL0=1;
+ 163   1      }
+*** WARNING C280 IN LINE 113 OF MAIN.C: 'n': unreferenced local variable
+ 164          
+ 165          
+ 166          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    648    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =      6       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

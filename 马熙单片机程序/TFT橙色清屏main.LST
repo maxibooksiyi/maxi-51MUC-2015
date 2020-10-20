@@ -1,0 +1,51 @@
+C51 COMPILER V9.01   TFT橙色清屏MAIN                                                       02/13/2015 03:18:14 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE TFT橙色清屏MAIN
+OBJECT MODULE PLACED IN TFT橙色清屏main.OBJ
+COMPILER INVOKED BY: C:\KeilMDK\C51\BIN\C51.EXE TFT橙色清屏main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include<reg51.h>
+   2          #include"gui.h"
+   3          #include"R61505V.h"
+   4          
+   5          
+   6          void delay(uchar z) // 延迟函数
+   7          {
+   8   1      uchar y;
+   9   1      for(z;z>0;z--)
+  10   1         for(y=0;y<110;y++);
+  11   1      }
+  12          
+  13          void main(void)
+  14          {
+  15   1          TFT_Init();
+  16   1         
+  17   1         delay(20);
+  18   1         
+  19   1              TFT_ClearScreen(0x07ff);
+  20   1                      delay(20);
+  21   1                {
+  22   2                GUI_ShowPicture(0, 0, 176, 220);
+  23   2                GUI_Write32CnChar(100, 100, "马熙", 0x001f, 0x07ff);   
+  24   2              
+  25   2              while(1);
+  26   2                        }
+  27   1         
+  28   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     83    ----
+   CONSTANT SIZE    =      5    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

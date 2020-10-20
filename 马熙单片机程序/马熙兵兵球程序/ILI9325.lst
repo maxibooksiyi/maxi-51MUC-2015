@@ -1,0 +1,291 @@
+C51 COMPILER V9.01   ILI9325                                                               02/13/2015 03:18:03 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE ILI9325
+OBJECT MODULE PLACED IN ILI9325.obj
+COMPILER INVOKED BY: C:\KeilMDK\C51\BIN\C51.EXE LCM\ILI9325.c LARGE BROWSE DEBUG OBJECTEXTEND PRINT(.\ILI9325.lst) OBJEC
+                    -T(ILI9325.obj)
+
+line level    source
+
+   1          /*********************************************************************
+   2           *
+   3           *                ILI9325 TFT彩屏驱动程序
+   4           *
+   5           *********************************************************************
+   6           * 文件名: ILI9325.c
+   7           * 描述: 
+   8           * 公司: 爱晶电子
+   9           * 作者                         日期                            注释
+  10           *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  11           * 王伟民                               2010/3/20                               原始文件
+  12           ********************************************************************/
+  13          
+  14          #include "stc.h"
+  15          //#include <stdio.h>
+  16          #include "ILI9325.h"
+  17          #include "delay.h"
+  18          
+  19          //=============================================================
+  20          //TFT初始化
+  21          //功能：该函数用于初始化TFT彩屏模块。
+  22          //入口参数: 无
+  23          //出口参数: 无
+  24          void ILI9325_initial(void)
+  25          { 
+  26   1              //TFT_CS=1;
+  27   1              //delayms(5);
+  28   1              //TFT_RST=0;
+  29   1              //delayms(5);
+  30   1              //TFT_RST=1;
+  31   1              //delayms(50);//可以适当调整延时，保障稳定显示
+  32   1              //write_cmd_data(0x0001,0x0100); //源扫描设置SS=0, 输出的移动方向是从S1到S720
+  33   1               //（源扫描设置SS=1, 输出的移动方向是从S720到S1）
+  34   1               //SM=0，逐行扫描（SM=1，隔行扫描）
+  35   1      
+  36   1              //write_cmd_data(0x0002,0x0700); //B/C=1、EOR=1：行倒置（B/C=0：帧/场倒置）
+  37   1              //write_cmd_data(0x0003,0x1030); //AM=0，地址在水平方向自动加1
+  38   1               //I/D[1:0] = 11：水平垂直方向均增加
+  39   1               //BGR=1:采用BGR格式
+  40   1               //TRI=0、DFM=*：8位机、两次数据传送
+  41   1              //write_cmd_data(0x0004,0x0000); //比例缩放设置：不缩放
+  42   1              
+  43   1               //显示控制
+  44   1              //write_cmd_data(0x0008,0x0207); //设置后边沿和前沿 
+  45   1              //write_cmd_data(0x0009,0x0000);//设置非显示区时间间隔ISC[3:0]
+  46   1              //write_cmd_data(0x000A,0x0000); //帧标记功能
+  47   1      
+  48   1              //write_cmd_data(0x000C,0x0000);//RGB显示接口控制1
+  49   1              //write_cmd_data(0x000D,0x0000);//帧标记位置
+  50   1              //write_cmd_data(0x000F,0x0000);//RGB显示接口控制2
+  51   1              
+  52   1               //电源配置
+  53   1              //write_cmd_data(0x0010,0x0000);   
+  54   1              //write_cmd_data(0x0011,0x0007);  
+C51 COMPILER V9.01   ILI9325                                                               02/13/2015 03:18:03 PAGE 2   
+
+  55   1              //write_cmd_data(0x0012,0x0000);  
+  56   1              //write_cmd_data(0x0013,0x0000); 
+  57   1               //vgh 
+  58   1              //write_cmd_data(0x0010,0x1290);   
+  59   1              //write_cmd_data(0x0011,0x0227);
+  60   1               //delayms(100);
+  61   1               //vregiout 
+  62   1              // write_cmd_data(0x0012,0x001d); //0x001b
+  63   1               //delayms(100); 
+  64   1               //vom amplitude
+  65   1              //write_cmd_data(0x0013,0x1500);
+  66   1               //delayms(100); 
+  67   1               //vom H
+  68   1              //write_cmd_data(0x0029,0x0018); 
+  69   1              //write_cmd_data(0x002B,0x000D); 
+  70   1              
+  71   1               //伽马校正
+  72   1              //write_cmd_data(0x0030,0x0004);
+  73   1              //write_cmd_data(0x0031,0x0307);
+  74   1              //write_cmd_data(0x0032,0x0002);//0006
+  75   1              //write_cmd_data(0x0035,0x0206);
+  76   1              //write_cmd_data(0x0036,0x0408);
+  77   1              //write_cmd_data(0x0037,0x0507); 
+  78   1              //write_cmd_data(0x0038,0x0204);//0200
+  79   1              //write_cmd_data(0x0039,0x0707); 
+  80   1              //write_cmd_data(0x003C,0x0405);//0504
+  81   1              //write_cmd_data(0x003D,0x0F02); 
+  82   1              
+  83   1               //窗口设置
+  84   1              //write_cmd_data(0x0050,0x0000);//水平起始位置
+  85   1              //write_cmd_data(0x0051,0x00EF);//水平终止位置
+  86   1              //write_cmd_data(0x0052,0x0000);//垂直起始位置
+  87   1              //write_cmd_data(0x0053,0x013F);//垂直终止位置
+  88   1      
+  89   1              //write_cmd_data(0x0060,0xA700);//门扫描设置，GS=1：从G320扫描到G1，320线
+  90   1              //write_cmd_data(0x0061,0x0001); 
+  91   1              //write_cmd_data(0x006A,0x0000);
+  92   1               //
+  93   1              //write_cmd_data(0x0080,0x0000); 
+  94   1              //write_cmd_data(0x0081,0x0000); 
+  95   1              //write_cmd_data(0x0082,0x0000); 
+  96   1              //write_cmd_data(0x0083,0x0000); 
+  97   1              //write_cmd_data(0x0084,0x0000); 
+  98   1              //write_cmd_data(0x0085,0x0000); 
+  99   1               //
+ 100   1              //write_cmd_data(0x0090,0x0010); 
+ 101   1              //write_cmd_data(0x0092,0x0600); 
+ 102   1              //write_cmd_data(0x0093,0x0003); 
+ 103   1              //write_cmd_data(0x0095,0x0110); 
+ 104   1              //write_cmd_data(0x0097,0x0000); 
+ 105   1              //write_cmd_data(0x0098,0x0000);
+ 106   1              //write_cmd_data(0x0007,0x0133);
+ 107   1              //write_cmd_data(0x0022);
+ 108   1               //下面是R61505的
+ 109   1              
+ 110   1              
+ 111   1              unsigned int i;
+ 112   1      
+ 113   1              TFT_RST = 1;
+ 114   1              for(i=500; i>0; i--);
+ 115   1              TFT_RST = 0;
+ 116   1              for(i=500; i>0; i--);
+C51 COMPILER V9.01   ILI9325                                                               02/13/2015 03:18:03 PAGE 3   
+
+ 117   1              TFT_RST = 1;
+ 118   1              for(i=5000; i>0; i--);
+ 119   1              
+ 120   1              TFT_CS = 0;
+ 121   1      
+ 122   1              write_cmd_data(0x0000, 0x0001);
+ 123   1              write_cmd_data(0x0007, 0x0000);                 
+ 124   1              write_cmd_data(0x0012, 0x0000);       
+ 125   1              write_cmd_data(0x00A4, 0x0001);
+ 126   1      
+ 127   1              for(i=5000; i>0; i--);
+ 128   1      
+ 129   1      //--------GAMMA SETTINGS---------
+ 130   1              write_cmd_data(0x0008, 0x0808); 
+ 131   1          write_cmd_data(0x0018 ,0x0001);                     
+ 132   1              write_cmd_data(0x0010, 0x11B0);                 
+ 133   1              write_cmd_data(0x0011, 0x0000);
+ 134   1              write_cmd_data(0x0012, 0x1115);
+ 135   1              write_cmd_data(0x0013, 0x8B0B);
+ 136   1              write_cmd_data(0x0012, 0x1135);                 
+ 137   1              write_cmd_data(0x0014, 0x8000);
+ 138   1              write_cmd_data(0x0001, 0x0100);
+ 139   1              write_cmd_data(0x0002, 0x0700); 
+ 140   1              write_cmd_data(0x0003, 0x1030);
+ 141   1              write_cmd_data(0x0070, 0x1B00);
+ 142   1      
+ 143   1              write_cmd_data(0x0071, 0x0001);
+ 144   1              write_cmd_data(0x0090, 0x0002);           
+ 145   1              write_cmd_data(0x0091, 0x0000);
+ 146   1              write_cmd_data(0x0092, 0x0001);
+ 147   1              write_cmd_data(0x0007, 0x0001);
+ 148   1              for(i=5000; i>0; i--);
+ 149   1      
+ 150   1              write_cmd_data(0x0007, 0x0021);
+ 151   1              for(i=5000; i>0; i--);
+ 152   1      
+ 153   1              write_cmd_data(0x0012, 0x1135);                  
+ 154   1              write_cmd_data(0x0007, 0x0233);                 
+ 155   1                      
+ 156   1              write_cmd(0x00,0x22);
+ 157   1                              
+ 158   1      }
+ 159          
+ 160          
+ 161          //=============================================================
+ 162          //写命令
+ 163          //功能：写一个命令到TFT控制器。
+ 164          //入口参数: CH,CL分别为命令字的高8位和低8位，指定要执行的命令。
+ 165          //出口参数: 无
+ 166          void write_cmd(unsigned char CH,unsigned char CL)
+ 167          {
+ 168   1              TFT_CS=0;
+ 169   1              TFT_RS=0;
+ 170   1              TFT_DATAPORTH=CH;
+ 171   1              TFT_WR=0;
+ 172   1              TFT_WR=1;
+ 173   1              TFT_DATAPORTL=CL;
+ 174   1              TFT_WR=0;
+ 175   1              TFT_WR=1;
+ 176   1              TFT_CS=1;
+ 177   1      }
+ 178          
+C51 COMPILER V9.01   ILI9325                                                               02/13/2015 03:18:03 PAGE 4   
+
+ 179          
+ 180          //===================================================================
+ 181          //写数据
+ 182          //功能：写一个数据到TFT控制器。
+ 183          //入口参数: DH,DL分别为数据字的高8位和低8位，指定要写入的数据。
+ 184          //出口参数: 无
+ 185          void write_data(unsigned char DH,unsigned char DL)
+ 186          {
+ 187   1              TFT_CS=0;
+ 188   1              TFT_RS=1;
+ 189   1              TFT_DATAPORTH=DH;
+ 190   1              TFT_WR=0;
+ 191   1              TFT_WR=1;
+ 192   1              TFT_DATAPORTL=DL;       
+ 193   1              TFT_WR=0;
+ 194   1              TFT_WR=1;
+ 195   1              TFT_CS=1;
+ 196   1      }
+ 197          
+ 198          
+ 199          //==============================================================
+ 200          //写16位数据
+ 201          //功能： 写一个数据到TFT控制器。
+ 202          //入口参数: dat为要写入的16位数据。
+ 203          //出口参数: 无
+ 204          void write_data_u16(unsigned int dat)
+ 205          {
+ 206   1              unsigned char m,n;
+ 207   1              m=dat>>8;
+ 208   1              n=dat;
+ 209   1              write_data(m,n);
+ 210   1      }
+ 211          
+ 212          
+ 213          //===============================================================
+ 214          //写命令数据
+ 215          //功能： 写命令数据到TFT控制器。
+ 216          //入口参数: cmd为要写入的命令字节；dat为要写入的16位数据。
+ 217          //出口参数: 无
+ 218          void write_cmd_data (unsigned char cmd,unsigned int dat)
+ 219          {
+ 220   1              unsigned char m,n;
+ 221   1              m=dat>>8;
+ 222   1              n=dat;
+ 223   1              write_cmd(0x00,cmd);
+ 224   1              write_data(m,n);
+ 225   1      }
+ 226          
+ 227          
+ 228          //===============================================================
+ 229          //设置窗口
+ 230          //入口参数: x0 y0,为显示窗口左上角坐标；x1,y1为显示窗口右下角坐标。
+ 231          //出口参数: 无
+ 232          //说明：该函数设置TFT模块的显示窗口。
+ 233          void LCD_setwindow(unsigned char x0,unsigned int y0,unsigned char x1,unsigned int y1)
+ 234          {
+ 235   1              write_cmd_data(WINDOW_XADDR_START,x0);//水平起始位置
+ 236   1              write_cmd_data(WINDOW_XADDR_END,x1);//水平终止位置
+ 237   1              write_cmd_data(WINDOW_YADDR_START,y0);//垂直起始位置
+ 238   1              write_cmd_data(WINDOW_YADDR_END,y1);//垂直终止位置
+ 239   1              write_cmd_data(GRAM_XADDR,x0);//设置X坐标位置
+ 240   1              write_cmd_data(GRAM_YADDR,y0);//设置Y坐标位置
+C51 COMPILER V9.01   ILI9325                                                               02/13/2015 03:18:03 PAGE 5   
+
+ 241   1              write_cmd(0x00,0x22);//LCD_WriteCMD(GRAMWR);
+ 242   1      }
+ 243          
+ 244          
+ 245          //===============================================================
+ 246          //设定当前显示坐标
+ 247          //入口参数: x,y为当前显示坐标。
+ 248          //出口参数: 无
+ 249          //说明：本函数实际上是LCD_setwindow函数的一个特例，显示窗口为最小，仅是一个像素点。
+ 250          void LCD_setxy(unsigned char x,unsigned int y)
+ 251          {
+ 252   1              LCD_setwindow(x,y,x,y); 
+ 253   1      }
+ 254          
+ 255          
+ 256          
+ 257          
+ 258          
+ 259          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    489    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       6
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

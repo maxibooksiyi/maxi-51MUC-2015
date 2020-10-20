@@ -1,0 +1,744 @@
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE TFTLCD触控彩屏
+OBJECT MODULE PLACED IN TFTLCD触控彩屏.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE TFTLCD触控彩屏.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include"touch.h"
+   2          
+   3          void TOUCH_SPI_Start(void)
+   4          {
+   5   1              TOUCH_CLK = 0;
+   6   1              TOUCH_CS  = 1;
+   7   1              TOUCH_DIN = 1;
+   8   1              TOUCH_CLK = 1;
+   9   1              TOUCH_CS  = 0;          
+  10   1      }
+  11          
+  12          void TOUCH_SPI_Write(uchar dat)
+  13          {
+  14   1              uchar i;
+  15   1              TOUCH_CLK = 0;
+  16   1              for(i=0; i<8; i++)
+  17   1              {
+  18   2                      TOUCH_DIN = dat >>7;    //放置最高位
+  19   2                      dat <<= 1;
+  20   2                      TOUCH_CLK = 0;                  //上升沿放置数据
+  21   2      
+  22   2                      TOUCH_CLK = 1;
+  23   2      
+  24   2              }
+  25   1      }
+  26          
+  27          uint TOUCH_SPI_Read(void)
+  28          {
+  29   1              uint i, dat=0;
+  30   1              TOUCH_CLK = 0;
+  31   1              for(i=0; i<12; i++)             //接收12位数据
+  32   1              {
+  33   2                      dat <<= 1;
+  34   2      
+  35   2                      TOUCH_CLK = 1;
+  36   2                      TOUCH_CLK = 0;
+  37   2      
+  38   2                      dat |= TOUCH_DOUT;
+  39   2      
+  40   2              }
+  41   1              return dat;     
+  42   1      }
+  43          
+  44          #define XY_READ_TIMS  10                   //读取的次数
+  45          
+  46          uint TOUCH_XPT_ReadData(uchar cmd)
+  47          {
+  48   1              uchar i, j;
+  49   1              uint readValue[XY_READ_TIMS];
+  50   1              long endValue;
+  51   1      
+  52   1              TOUCH_CLK = 0;    //先拉低时间
+  53   1              TOUCH_CS  = 0;    //选中芯片
+  54   1              
+  55   1              for(i=0; i<XY_READ_TIMS; i++)           //读取XY_READ_TIMS次结果
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 2   
+
+  56   1              {       
+  57   2                      TOUCH_SPI_Write(cmd);  //发送转换命令
+  58   2                      //Delay_6us();
+  59   2                      for(j=6; j>0; j--);     //延时等待转换结果
+  60   2                      TOUCH_CLK = 1;    //发送一个时钟周期，清除BUSY
+  61   2                      _nop_();
+  62   2                      _nop_();
+  63   2                      TOUCH_CLK = 0;
+  64   2                      _nop_();
+  65   2                      _nop_();
+  66   2              
+  67   2                      readValue[i] = TOUCH_SPI_Read();
+  68   2              }
+  69   1              TOUCH_CS = 1; //释放片选
+  70   1      
+  71   1              //---软件滤波---//
+  72   1              //---先大到小排序，除去最高值，除去最低值，求其平均值---//
+  73   1              for(i=0; i<XY_READ_TIMS - 1; i++)       //从大到小排序
+  74   1              {
+  75   2                      for(j= i+1; j<XY_READ_TIMS; j++)
+  76   2                      {
+  77   3                              if(readValue[i] < readValue[j])
+  78   3                              {
+  79   4                                      endValue = readValue[i];
+  80   4                                      readValue[i] = readValue[j];
+  81   4                                      readValue[j] = endValue;
+  82   4                              }  
+  83   3                      }
+  84   2              }
+  85   1      //      if((readValue[2] - readValue[3]) > 5)
+  86   1      //      {
+  87   1      //              return 0;
+  88   1      //      }
+  89   1              endValue = 0;
+  90   1              for(i=2; i<XY_READ_TIMS-2; i++)            
+  91   1              {
+  92   2                      endValue += readValue[i]; 
+  93   2              }
+  94   1              endValue = endValue/ (XY_READ_TIMS - 4);//求平均值
+  95   1      
+  96   1              return endValue;
+  97   1      }
+  98          
+  99          
+ 100          XPT_XY xpt_xy;   //定义一个全局变量保存X、Y的值
+ 101          uchar TOUCH_XPT_ReadXY(void)
+ 102          {       
+ 103   1              uint x1, x2, x, y1, y2, y;
+ 104   1      
+ 105   1              TOUCH_SPI_Start();
+ 106   1              //---分别读两次X值和Y值, 交叉着读可以提高一些读取精度---//
+ 107   1              x1 = TOUCH_XPT_ReadData(XPT_CMD_X);
+ 108   1              y1 = TOUCH_XPT_ReadData(XPT_CMD_Y);
+ 109   1              x2 = TOUCH_XPT_ReadData(XPT_CMD_X);
+ 110   1              y2 = TOUCH_XPT_ReadData(XPT_CMD_Y);
+ 111   1      
+ 112   1              //---求取X值的差值---//
+ 113   1              if (x1 > x2)
+ 114   1              {
+ 115   2                      x = x1 - x2;
+ 116   2              }
+ 117   1              else
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 3   
+
+ 118   1              {
+ 119   2                      x = x2 - x1;
+ 120   2              }
+ 121   1      
+ 122   1              //---求取Y值的差值---//
+ 123   1              if (y1 > y2)
+ 124   1              {
+ 125   2                      y = y1 - y2;
+ 126   2              }
+ 127   1              else
+ 128   1              {
+ 129   2                      y = y2 - y1;
+ 130   2              }
+ 131   1      
+ 132   1              //---判断差值是否大于50，大于就返回0，表示读取失败---//
+ 133   1              if((x > 50) || (y > 50))  
+ 134   1              {
+ 135   2                      return 0;
+ 136   2              }
+ 137   1      
+ 138   1              //---求取两次读取值的平均数作为读取到的XY值---//
+ 139   1              xpt_xy.x = (x1 + x2) / 2;
+ 140   1              xpt_xy.y = (y1 + y2) / 2;
+ 141   1      
+ 142   1              xpt_xy.x &= 0xFFF0;     //去掉低四位
+ 143   1              xpt_xy.y &= 0xFFF0;
+ 144   1               
+ 145   1              //---确定XY值的范围，用在触摸屏大于TFT时---//
+ 146   1              if((xpt_xy.x < 100) || (xpt_xy.y > 3800))
+ 147   1              {
+ 148   2                      return 0;
+ 149   2              }
+ 150   1      
+ 151   1              return 1;  // 返回1，表示读取成功
+ 152   1      }
+ 153          
+ 154          
+ 155          
+ 156          #include"r61505v.h"
+ 157          
+ 158          /****************************************************************************
+ 159          *函数名：TFT_WriteCmd
+ 160          *输  入：cmd
+ 161          *输  出：
+ 162          *功  能：写命令。
+ 163          ****************************************************************************/     
+ 164          
+ 165          void TFT_WriteCmd(uint cmd)
+ 166          {
+ 167   1              uchar cmdH, cmdL;
+ 168   1              
+ 169   1              cmdH = cmd >> 8;
+ 170   1              cmdL = cmd & 0x00FF;  //先进行数据换算，转为8位宽
+ 171   1      
+ 172   1              TFT_WR = 1;                       //初始化WR
+ 173   1              TFT_CS = 0;                       //打开片选
+ 174   1              TFT_RS = 0;                       //选择命令
+ 175   1              TFT_RD = 1;           //选择写
+ 176   1      
+ 177   1              TFT_DATAPORTH = cmdH; //放置命令数据
+ 178   1              TFT_DATAPORTL = cmdL;
+ 179   1      
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 4   
+
+ 180   1              TFT_WR = 0;                       //写入时序
+ 181   1              TFT_WR = 1;
+ 182   1      
+ 183   1              TFT_CS = 1;                       //关闭片选
+ 184   1      }
+ 185          
+ 186          /****************************************************************************
+ 187          *函数名：TFT_WriteData
+ 188          *输  入：dat
+ 189          *输  出：
+ 190          *功  能：写数据。
+ 191          ****************************************************************************/     
+ 192          
+ 193          void TFT_WriteData(uint dat)
+ 194          {
+ 195   1              uchar datH, datL;
+ 196   1              datH = dat >> 8;
+ 197   1              datL = dat & 0x00FF;  //先进行数据换算，转为8位宽
+ 198   1      
+ 199   1              TFT_WR = 1;                       //初始化WR
+ 200   1              TFT_CS = 0;                       //打开片选
+ 201   1              TFT_RS = 1;                       //选择发送数据
+ 202   1              TFT_RD = 1;           //选择写
+ 203   1      
+ 204   1              TFT_DATAPORTH = datH; //放置命令数据
+ 205   1              TFT_DATAPORTL = datL;
+ 206   1      
+ 207   1              TFT_WR = 0;                       //写入时序
+ 208   1              TFT_WR = 1;
+ 209   1      
+ 210   1              TFT_CS = 1;                       //关闭片选
+ 211   1      }
+ 212          
+ 213          /****************************************************************************
+ 214          *函数名：TFT_WriteCmdData
+ 215          *输  入：cmd, dat
+ 216          *输  出：
+ 217          *功  能：写命令， 写数据。
+ 218          ****************************************************************************/     
+ 219          
+ 220          void TFT_WriteCmdData(uint cmd, uint dat)
+ 221          {
+ 222   1              TFT_WriteCmd(cmd);
+ 223   1              TFT_WriteData(dat);
+ 224   1      }
+ 225          
+ 226          /****************************************************************************
+ 227          *函数名：TFT_Init
+ 228          *输  入：
+ 229          *输  出：
+ 230          *功  能：初始化TFT。
+ 231          ****************************************************************************/     
+ 232          
+ 233          void TFT_Init(void)
+ 234          {
+ 235   1              uint i;
+ 236   1      
+ 237   1              TFT_RST = 1;
+ 238   1              for(i=500; i>0; i--);
+ 239   1              TFT_RST = 0;
+ 240   1              for(i=500; i>0; i--);
+ 241   1              TFT_RST = 1;
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 5   
+
+ 242   1              for(i=5000; i>0; i--);
+ 243   1              
+ 244   1              TFT_CS = 0;
+ 245   1      
+ 246   1              TFT_WriteCmdData(0x0000, 0x0001);
+ 247   1              TFT_WriteCmdData(0x0000, 0x0000);                       
+ 248   1              TFT_WriteCmdData(0x0000, 0x0000);       
+ 249   1              TFT_WriteCmdData(0x0000, 0x0001);
+ 250   1      
+ 251   1              for(i=5000; i>0; i--);
+ 252   1      
+ 253   1      //--------GAMMA SETTINGS---------
+ 254   1              TFT_WriteCmdData(0x0008, 0x0808); 
+ 255   1              TFT_WriteCmdData(0x0018 ,0x0001);                       
+ 256   1              TFT_WriteCmdData(0x0010, 0x11B0);                       
+ 257   1              TFT_WriteCmdData(0x0011, 0x0000);
+ 258   1              TFT_WriteCmdData(0x0012, 0x1115);
+ 259   1              TFT_WriteCmdData(0x0013, 0x8B0B);
+ 260   1              TFT_WriteCmdData(0x0012, 0x1135);                       
+ 261   1              TFT_WriteCmdData(0x0014, 0x8000);
+ 262   1              TFT_WriteCmdData(0x0001, 0x0100);
+ 263   1              TFT_WriteCmdData(0x0002, 0x0700); 
+ 264   1              TFT_WriteCmdData(0x0003, 0x1030);
+ 265   1              TFT_WriteCmdData(0x0070, 0x1B00);
+ 266   1      
+ 267   1              TFT_WriteCmdData(0x0071, 0x0001);
+ 268   1              TFT_WriteCmdData(0x0090, 0x0002);           
+ 269   1              TFT_WriteCmdData(0x0091, 0x0000);
+ 270   1              TFT_WriteCmdData(0x0092, 0x0001);
+ 271   1              TFT_WriteCmdData(0x0007, 0x0001);
+ 272   1              for(i=5000; i>0; i--);
+ 273   1      
+ 274   1              TFT_WriteCmdData(0x0007, 0x0021);
+ 275   1              for(i=5000; i>0; i--);
+ 276   1      
+ 277   1              TFT_WriteCmdData(0x0012, 0x1135);                  
+ 278   1              TFT_WriteCmdData(0x0007, 0x0233);                 
+ 279   1                              
+ 280   1              TFT_WriteCmd(0x0022);
+ 281   1              
+ 282   1      }
+ 283          
+ 284          /****************************************************************************
+ 285          *函数名：TFT_SetWindow
+ 286          *输  入：xStart, yStart, xEnd, yEnd
+ 287          *输  出：
+ 288          *功  能：设置要操作的窗口。
+ 289          ****************************************************************************/     
+ 290          
+ 291          void TFT_SetWindow(uint xStart, uint yStart, uint xEnd, uint yEnd)
+ 292          {
+ 293   1              
+ 294   1      
+ 295   1              TFT_WriteCmdData(0x0050, xStart);        //水平线起始
+ 296   1              TFT_WriteCmdData(0x0052, yStart);        //垂直线起始
+ 297   1              TFT_WriteCmdData(0x0051, xEnd);  //水平线结束
+ 298   1              TFT_WriteCmdData(0x0053, yEnd);  //垂直线结束
+ 299   1      
+ 300   1              TFT_WriteCmdData(0x0020, xEnd);
+ 301   1              TFT_WriteCmdData(0x0021, yEnd);
+ 302   1      
+ 303   1              TFT_WriteCmd(0x0022);   
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 6   
+
+ 304   1      }
+ 305          
+ 306          /****************************************************************************
+ 307          *函数名：GUI_Clearcreen
+ 308          *输  入：backColor
+ 309          *输  出：
+ 310          *功  能：清屏并涂上颜色。
+ 311          ****************************************************************************/
+ 312                    
+ 313          void TFT_ClearScreen(uint color)
+ 314          {
+ 315   1              uint i, j;
+ 316   1      
+ 317   1              TFT_SetWindow(0, 0, TFT_XMAX, TFT_YMAX);         //作用区域
+ 318   1              for(i=0; i<TFT_XMAX+1; i++)
+ 319   1              {
+ 320   2                      for (j=0; j<TFT_YMAX+1; j++)
+ 321   2                      {
+ 322   3                              TFT_WriteData(color);
+ 323   3                      }
+ 324   2      
+ 325   2              }
+ 326   1      }
+ 327          #include<reg51.h>
+ 328          #include"gui.h"
+ 329          #include"touch.h"
+ 330          
+ 331          void main(void)
+ 332          {
+ 333   1              uchar rst = 0;
+ 334   1              //--多出来两个值使用来在内存上面跟别的变量分隔的--//
+ 335   1              uchar  xValue[6] = {0, 0, 0, 0, 0, 0}, yValue[6] = {0, 0, 0, 0, 0, 0};
+ 336   1              long x, y;
+ 337   1      
+ 338   1              TFT_Init();
+ 339   1              rst = 1;
+ 340   1      
+ 341   1              while(1)
+ 342   1              {
+ 343   2                      if(rst == 1)
+ 344   2                      {       
+ 345   3                              TFT_ClearScreen(0x0000);
+ 346   3                              GUI_Write32CnChar(20, 24, "普中科技", 0xF800, 0x0000);
+ 347   3                              GUI_Line(20, 54, 140, 54, 0xF800);
+ 348   3                              GUI_Line(20, 54, 140, 54, 0xF800);
+ 349   3                              GUI_WriteASCII(127, 0, "RST", 0xF800, 0x0000);
+ 350   3                              rst = 0;
+ 351   3                      }
+ 352   2      
+ 353   2                      if(TOUCH_XPT_ReadXY() == 1)
+ 354   2                      {
+ 355   3                              //--如果触摸跟显示发生偏移，可以根据显示AD值--//
+ 356   3                              //--调整下面公式里面的数值--//
+ 357   3                              x = xpt_xy.x;
+ 358   3                              x = (x - 100) * 454 / 10000 ; 
+ 359   3                              y =     xpt_xy.y;
+ 360   3                              y = (y - 240) * 628 / 10000;
+ 361   3      
+ 362   3                              if (x > 175 )
+ 363   3                              {
+ 364   4                                      x = 175;
+ 365   4                              }
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 7   
+
+ 366   3                              if (y > 219)
+ 367   3                              {
+ 368   4                                      y = 219;
+ 369   4                              }
+ 370   3                              if ((x > 127) && (y < 24))
+ 371   3                              {
+ 372   4                                      rst = 1;
+ 373   4                              }
+ 374   3                              else
+ 375   3                              {
+ 376   4                                      GUI_Dot((uint)x , (uint)y, 0x001F);
+ 377   4                              }
+ 378   3                      }
+ 379   2              }
+ 380   1      }
+ 381          #include"gui.h"
+ 382          
+ 383          //---汉字的字库头文件---//
+ 384          #include"charcode.h"
+ 385          
+ 386          //---如果要显示图片就添加这个头文件---//
+ 387          #ifdef PICTURE_SHOW
+              
+              #include"picture.h"
+              
+              #endif
+ 392          
+ 393          /****************************************************************************
+ 394          *函数名：GUI_Dot
+ 395          *输  入：x：点的X坐标；
+ 396          *      * y：点的Y坐标
+ 397          *      * color：点的颜色
+ 398          *输  出：
+ 399          *功  能：给单个像素涂上颜色。
+ 400          ****************************************************************************/     
+ 401          
+ 402          void GUI_Dot(uint x, uint y, uint color)
+ 403          {  
+ 404   1              uchar i;
+ 405   1      
+ 406   1              TFT_SetWindow(x-1, y, x+2, y+2);  //单个像素
+ 407   1      
+ 408   1              for(i=0; i<16; i++)
+ 409   1              {
+ 410   2                      TFT_WriteData(color);
+ 411   2              }
+ 412   1      }
+ 413          
+ 414          ///****************************************************************************
+ 415          //*函数名：GUI_Box
+ 416          //*输  入：sx：起始X坐标, sy：其实Y坐标, 
+ 417          //*      * ex：终止X坐标, ey：终止Y坐标,
+ 418          //*      * color：方框的颜色
+ 419          //*输  出：
+ 420          //*功  能：给一个区域涂上颜色。
+ 421          //****************************************************************************/   
+ 422          //void GUI_Box(uint sx, uint sy, uchar ex, uint ey, uint color)
+ 423          //{ 
+ 424          //      uint temp;   
+ 425          //      TFT_SetWindow(sx, sy, ex, ey); 
+ 426          //  sx = ex - sx + 1;
+ 427          //      sy = ey - sy + 1;
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 8   
+
+ 428          //      while (sx--)
+ 429          //      {
+ 430          //              temp = sy;
+ 431          //              while (temp--)
+ 432          //              {       
+ 433          //                      TFT_WriteData(color);
+ 434          //              }
+ 435          //      }
+ 436          //}
+ 437          
+ 438          /****************************************************************************
+ 439          *函数名：GUI_Line 
+ 440          *输  入：xStart：线的起始X坐标,
+ 441          *      * yStart：线的其实Y坐标,
+ 442          *      * xEnd：线的终止X坐标,
+ 443          *      * yEnd：线的终止Y坐标,
+ 444          *      * color：线条的颜色
+ 445          *输  出：
+ 446          *功  能：画一条直线
+ 447          ****************************************************************************/     
+ 448          
+ 449          void GUI_Line(uint xStart, uint yStart, uchar xEnd, uint yEnd, uint color)
+ 450          {
+ 451   1              uint t;  
+ 452   1              int xerr = 0, yerr = 0, delta_x, delta_y, distance;  
+ 453   1              int incx, incy;  
+ 454   1              uint row, col;  
+ 455   1              delta_x = xEnd - xStart;//计算坐标增量  
+ 456   1              delta_y = yEnd - yStart;  
+ 457   1              col = xStart;  
+ 458   1              row = yStart;  
+ 459   1              if (delta_x > 0)
+ 460   1              {
+ 461   2                      incx=1;//设置单步方向
+ 462   2              }         
+ 463   1              else    
+ 464   1              {  
+ 465   2                  if (delta_x == 0)
+ 466   2                      {
+ 467   3                              incx = 0;//垂直线 
+ 468   3                      }                
+ 469   2                  else 
+ 470   2                              {
+ 471   3                                      incx = -1;
+ 472   3                                      delta_x = -delta_x;
+ 473   3                              }  
+ 474   2              }  
+ 475   1              if (delta_y > 0)
+ 476   1              {
+ 477   2                      incy = 1;
+ 478   2              }         
+ 479   1              else  
+ 480   1              {  
+ 481   2                  if (delta_y == 0)
+ 482   2                      {
+ 483   3                              incy = 0;//水平线  
+ 484   3                      } 
+ 485   2                  else 
+ 486   2                      {
+ 487   3                              incy = -1;
+ 488   3                              delta_y = -delta_y;
+ 489   3                      }  
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 9   
+
+ 490   2              }  
+ 491   1              if (delta_x > delta_y)
+ 492   1              { 
+ 493   2                      distance = delta_x;//选取基本增量坐标轴  
+ 494   2              }
+ 495   1              else
+ 496   1              {
+ 497   2                      distance = delta_y; 
+ 498   2              }       
+ 499   1              for (t=0; t<=distance+1; t++)  
+ 500   1              {                                     //画线输出  
+ 501   2                  GUI_Dot(col, row, color);
+ 502   2                  xerr += delta_x;  
+ 503   2                  yerr += delta_y;  
+ 504   2                      if(xerr > distance)  
+ 505   2                  {  
+ 506   3                      xerr -= distance;  
+ 507   3                      col += incx;  
+ 508   3                  }  
+ 509   2                  if(yerr > distance)  
+ 510   2                  {  
+ 511   3                      yerr -= distance;  
+ 512   3                      row += incy;  
+ 513   3                  }  
+ 514   2              }  
+ 515   1      }
+ 516          
+ 517          /****************************************************************************
+ 518          *函数名：GUI_WriteCnChar 
+ 519          *输  入：x：显示起始X坐标
+ 520          *      * y：显示起始Y坐标
+ 521          *      * *cn：要显示的字符串
+ 522          *      * wordColor：字体的颜色
+ 523          *      * backColor：背景颜色
+ 524          *输  出：
+ 525          *功  能：写二号楷体汉字
+ 526          ****************************************************************************/     
+ 527          
+ 528          #ifdef CHAR32_SHOW
+ 529          
+ 530          void GUI_Write32CnChar(uint x, uint y, uchar *cn, uint wordColor, uint backColor)        
+ 531          {  
+ 532   1              uchar i, j, wordNum;
+ 533   1              uint color;
+ 534   1              while (*cn != '\0')
+ 535   1              {
+ 536   2                      TFT_SetWindow(x, y, x+31, y+28);
+ 537   2                      for (wordNum=0; wordNum<20; wordNum++)
+ 538   2                      {       //wordNum扫描字库的字数
+ 539   3                              if ((CnChar32x29[wordNum].Index[0]==*cn)
+ 540   3                                   &&(CnChar32x29[wordNum].Index[1]==*(cn+1)))
+ 541   3                              {
+ 542   4                                      for(i=0; i<116; i++) 
+ 543   4                                      {       //MSK的位数
+ 544   5                                              color=CnChar32x29[wordNum].Msk[i];
+ 545   5                                              for(j=0;j<8;j++) 
+ 546   5                                              {
+ 547   6                                                      if((color&0x80)==0x80)
+ 548   6                                                      {
+ 549   7                                                              TFT_WriteData(wordColor);
+ 550   7                                                      }                                               
+ 551   6                                                      else
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 10  
+
+ 552   6                                                      {
+ 553   7                                                              TFT_WriteData(backColor);
+ 554   7                                                      } 
+ 555   6                                                      color<<=1;
+ 556   6                                              }//for(j=0;j<8;j++)结束
+ 557   5                                      }    
+ 558   4                              }
+ 559   3                      } //for (wordNum=0; wordNum<20; wordNum++)结束  
+ 560   2                      cn += 2;
+ 561   2                      x += 32;
+ 562   2              }
+ 563   1      }
+ 564          #endif
+ 565          
+ 566          /****************************************************************************
+ 567          *函数名：GUI_WriteEnChar 
+ 568          *输  入：x：显示起始X坐标
+ 569          *      * y：显示起始Y坐标
+ 570          *      * *cn：要显示的字符串
+ 571          *      * wordColor：字体的颜色
+ 572          *      * backColor：背景颜色
+ 573          *输  出：
+ 574          *功  能：写四号字字母
+ 575          ****************************************************************************/     
+ 576          #ifdef CHAR14_SHOW
+              
+              void GUI_Write14CnChar(uint x,uint y,uchar *cn,uint wordColor,uint backColor)    
+              {  
+                      uchar i, j, wordNum;
+                      uint color;
+                      while (*cn != '\0')
+                      {
+                              TFT_SetWindow(x, y, x+23, y+18);
+                              for (wordNum=0; wordNum<20; wordNum++)
+                              {       //wordNum扫描字库的字数
+                                      if ((CnChar19x24[wordNum].Index[0]==*cn)
+                                           &&(CnChar19x24[wordNum].Index[1]==*(cn+1)))
+                                      {
+                                              for(i=0; i<57; i++) 
+                                              {       //MSK的位数
+                                                      color=CnChar19x24[wordNum].Msk[i];
+                                                      for(j=0;j<8;j++) 
+                                                      {
+                                                              if((color&0x80)==0x80)
+                                                              {
+                                                                      TFT_WriteData(wordColor);
+                                                              }                                               
+                                                              else
+                                                              {
+                                                                      TFT_WriteData(backColor);
+                                                              } 
+                                                              color<<=1;
+                                                      }//for(j=0;j<8;j++)结束
+                                              }    
+                                      }
+                              } //for (wordNum=0; wordNum<20; wordNum++)结束  
+                              cn += 2;
+                              x += 24;
+                      }
+              }
+              
+              #endif 
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 11  
+
+ 614          /****************************************************************************
+ 615          *函数名：GUI_WriteASCII 
+ 616          *输  入：x：显示起始X坐标
+ 617          *      * y：显示起始Y坐标
+ 618          *      * *p：要显示的字符串
+ 619          *      * wordColor：字体的颜色
+ 620          *      * backColor：背景颜色
+ 621          *输  出：
+ 622          *功  能：写16X24的ASCII字符
+ 623          ****************************************************************************/     
+ 624          
+ 625          #ifdef USE_ASCII
+ 626          
+ 627          void GUI_WriteASCII(uint x, uint y, uchar *p, uint wordColor, uint backColor)
+ 628          {
+ 629   1              uchar j, wordByte,wordNum;
+ 630   1              uint color;
+ 631   1              while(*p != '\0')
+ 632   1              {
+ 633   2                      wordNum = *p - 32;
+ 634   2                      TFT_SetWindow(x,y,x+15, y+23);
+ 635   2                      for (wordByte=0; wordByte<48; wordByte++)
+ 636   2                      {
+ 637   3                              color = ASCII16x24[wordNum][wordByte];
+ 638   3                              for (j=0; j<8; j++) 
+ 639   3                              {
+ 640   4                                      if ((color&0x80) == 0x80)
+ 641   4                                      {
+ 642   5                                              TFT_WriteData(wordColor);
+ 643   5                                      }                                               
+ 644   4                                      else
+ 645   4                                      {
+ 646   5                                              TFT_WriteData(backColor);
+ 647   5                                      }       
+ 648   4                                      color <<= 1;
+ 649   4                              }
+ 650   3                      }
+ 651   2                      p++;
+ 652   2                      x +=16;
+ 653   2              }
+ 654   1      }
+ 655          #endif
+ 656          
+ 657          /****************************************************************************
+ 658          *函数名：GUI_ShowPicture 
+ 659          *输  入：x：显示起始X坐标
+ 660          *      * y：显示起始Y坐标
+ 661          *      * wide：图片的宽度
+ 662          *      * high：图片的高度
+ 663          *输  出：
+ 664          *功  能：画一条直线
+ 665          ****************************************************************************/     
+ 666          #ifdef PICTURE_SHOW
+              
+              void GUI_ShowPicture(uint x, uint y, uchar wide, uint high)
+              {
+                      uint temp = 0, tmp = 0, num = 0;
+                      TFT_SetWindow(x, y, x+wide-1, y+high-1);
+                      num = wide * high * 2;
+                      do
+                      {  
+                              temp = pic[tmp + 1];
+C51 COMPILER V9.01   TFTLCD触控彩屏                                                        02/07/2015 00:00:01 PAGE 12  
+
+                              temp = temp << 8;
+                              temp = temp | pic[tmp];
+                              TFT_WriteData(temp);//逐点显示
+                              tmp += 2;
+                      }
+                      while(tmp < num);       
+              }
+              
+              #endif
+ 685          
+ 686          
+ 687          
+ 688          
+ 689          
+ 690          
+ 691          
+ 692          
+ 693          
+ 694          
+ 695          
+ 696          
+ 697          
+ 698          
+ 699          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2209    ----
+   CONSTANT SIZE    =   5695    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4     120
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

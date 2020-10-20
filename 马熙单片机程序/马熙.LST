@@ -1,0 +1,418 @@
+C51 COMPILER V8.06   _íÎõ                                                                  01/27/2015 10:03:03 PAGE 1   
+
+
+C51 COMPILER V8.06, COMPILATION OF MODULE _íÎõ
+OBJECT MODULE PLACED IN ÂíÎõ.OBJ
+COMPILER INVOKED BY: D:\Èí¼þ\C51\BIN\C51.EXE ÂíÎõ.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include<reg52.h>
+   2          #include<stdlib.h>
+   3          #include<math.h>
+   4          #define uchar unsigned char
+   5          #define uint unsigned int
+   6          uchar code table[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+   7          uchar code led[8]={0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f};
+   8          uchar xx[8];
+   9          sbit dula=P2^6;
+  10          sbit wela=P2^7;
+  11          void displaypro(double h)
+  12          {
+  13   1              uchar point=8,m;
+  14   1              bit symbol;
+  15   1              char i;
+  16   1              double proh;
+  17   1              symbol=0;
+  18   1              if(h<0)
+  19   1              {
+  20   2                      symbol=1;
+  21   2                      h=-h;
+  22   2              }
+  23   1              if(h>=0&&h<10){point=1;proh=h*10000000;}
+  24   1              if(h>=10&&h<100){point=2;proh=h*1000000;}
+  25   1              if(h>=100&&h<1000){point=3;proh=h*100000;}
+  26   1              if(h>=1000&&h<10000){point=4;proh=h*10000;}
+  27   1              if(h>=10000&&h<100000){point=5;proh=h*1000;}
+  28   1              if(h>=100000&&h<1000000){point=6;proh=h*100;}
+  29   1              if(h>=1000000&&h<10000000){point=7;proh=h*10;}
+  30   1              if(h>=10000000&&h<100000000){point=8;proh=h;}
+  31   1              if(h<100000000)
+  32   1              {
+  33   2                      for(i=7;i>=0;i--)
+  34   2                      {
+  35   3                              m=proh/pow(10,i);
+  36   3                              xx[7-i]=table[m];
+  37   3                              proh=proh-(m*pow(10,i));
+  38   3                              if(proh<0)
+  39   3                              proh=0;
+  40   3                      }
+  41   2                      if(h>=1)//ÓÉÓÚkeil ÖÐµ¥¾«¶ÈºÍË«¾«¶ÈÊÇÒ»ÑùµÄ£¬Ö»ÄÜ±íÊ¾ÁùÎ»Êý£¬Èç²»°ÑºóÃæÁ½Î»ÇåÁã£¬½«»á³öÏÖÂÒÂë¡£
+  42   2                      {
+  43   3                              xx[6]=0x3f;
+  44   3                              xx[7]=0x3f;
+  45   3                      }
+  46   2                      else 
+  47   2                              xx[7]=0x3f;
+  48   2                      xx[point-1]+=128;//ÏÔÊ¾Ð¡Êýµã
+  49   2              }
+  50   1              else //³¬¹ý°ËÎ»ÊýÊ±£¬¼ÆËãÆ÷±¨´íÏÔÊ¾E
+  51   1              {
+  52   2                      for(i=6;i>=0;i--)
+  53   2                      xx[i]=0x00;
+  54   2                      xx[7]=0x79;
+  55   2              }
+C51 COMPILER V8.06   _íÎõ                                                                  01/27/2015 10:03:03 PAGE 2   
+
+  56   1              while(xx[7]==0x3f)//È¥³ý0.0000000 ÏÔÊ¾µÄÎÊÌâ£¬¼´°Ñ0.0000000 ÏÔÊ¾³É0.
+  57   1              {
+  58   2                      for(i=7;i>0;i--)
+  59   2                      xx[i]=xx[i-1];
+  60   2                      xx[0]=0x00;
+  61   2              }
+  62   1              if(symbol==1)//ÈôÎª¸ºÊýÊ±£¬½«Êý×éÖÐµÄÊý¾ÝºóÒÆ
+  63   1              {
+  64   2                      for(i=6;i>=0;i--)
+  65   2                      {
+  66   3                              if(xx[i]==0x00)
+  67   3                              {
+  68   4                                      xx[i]=0x40;
+  69   4                                      break;
+  70   4                              }
+  71   3                      }
+  72   2              }
+  73   1      }
+  74          void delay(unsigned char x)
+  75          {
+  76   1              unsigned char i,j;
+  77   1              for(i=0;i<x;i++)
+  78   1              for(j=0;j<x;j++);
+  79   1      }
+  80          unsigned char keyscan()//key Îª°´¼ü·µ»ØÖµ
+  81          {
+  82   1              uchar temp,row=0,col=0,key;
+  83   1              uint add;
+  84   1              P2&=0xe8;
+  85   1              P1|=0x1f;
+  86   1              temp=P1;
+  87   1              temp|=0xe0;
+  88   1              if(temp!=0xff)
+  89   1              {
+  90   2                      delay(15);
+  91   2                      temp=P1;
+  92   2                      temp|=0xe0;
+  93   2                      if(temp!=0xff)
+  94   2                      {
+  95   3                              row=P1;
+  96   3                              P2|=0x17;
+  97   3                              P1&=0xe0;
+  98   3                              col=P2;
+  99   3                              col|=0xe8;
+ 100   3                              add=row*256+col;
+ 101   3                              switch(add)
+ 102   3                              {
+ 103   4                                      case 0xfefe: key=0;break;
+ 104   4                                      case 0xfdfe: key=1;break;
+ 105   4                                      case 0xfbfe: key=2;break;
+ 106   4                                      case 0xf7fe: key=3;break;
+ 107   4                                      case 0xeffe: key=10;break;
+ 108   4                                      case 0xfefd: key=4;break;
+ 109   4                                      case 0xfdfd: key=5;break;
+ 110   4                                      case 0xfbfd: key=6;break;
+ 111   4                                      case 0xf7fd: key=7;break;
+ 112   4                                      case 0xeffd: key=11;break;
+ 113   4                                      case 0xfefb: key=8;break;
+ 114   4                                      case 0xfdfb: key=9;break;
+ 115   4                                      case 0xfbfb: key=15;break;
+ 116   4                                      case 0xf7fb: key=14;break;
+ 117   4                                      case 0xeffb: key=12;break;
+C51 COMPILER V8.06   _íÎõ                                                                  01/27/2015 10:03:03 PAGE 3   
+
+ 118   4                                      case 0xfeef: key=16;break;
+ 119   4                                      case 0xfdef: key=17;break;
+ 120   4                                      case 0xfbef: key=18;break;
+ 121   4                                      case 0xf7ef: key=19;break;
+ 122   4                                      case 0xefef: key=13;break;
+ 123   4                                      default: key=20;break;
+ 124   4                              }
+ 125   3                              return key;
+ 126   3                      }
+ 127   2                      else return 20;
+ 128   2              }
+ 129   1              else return 20;
+ 130   1      }
+ 131          void main()
+ 132          {
+ 133   1              uchar k,i,hand,h2;
+ 134   1              bit xsd=0;
+ 135   1              char data e;
+ 136   1              double data temp,h1=0,h3=0,h4=0;
+ 137   1              displaypro(0);
+ 138   1              while(1)
+ 139   1              {
+ 140   2                      k=keyscan();
+ 141   2                      if(k==20)
+ 142   2                      hand=0;
+ 143   2                      for(i=0;i<8;i++)
+ 144   2                      {
+ 145   3                              wela=1;
+ 146   3                              P0=led[i];
+ 147   3                              wela=0;
+ 148   3                              P0=0xff;
+ 149   3                              dula=1;
+ 150   3                              P0=xx[i];
+ 151   3                              dula=0;
+ 152   3                              delay(20);
+ 153   3                              P0=0xff;
+ 154   3                      }
+ 155   2                      switch(k)
+ 156   2                      {
+ 157   3                              case 20:break;
+ 158   3                              case 0:
+ 159   3                              case 1:
+ 160   3                              case 2:
+ 161   3                              case 3:
+ 162   3                              case 4:
+ 163   3                              case 5:
+ 164   3                              case 6:
+ 165   3                              case 7:
+ 166   3                              case 8:
+ 167   3                              case 9: if(hand==0)
+ 168   3                              {
+ 169   4                                      h4=0;
+ 170   4                                      if(h2==0)
+ 171   4                                      {
+ 172   5                                              if(xsd==0)
+ 173   5                                              {
+ 174   6                                                      if(h1>=0)h1=h1*10+k;
+ 175   6                                                      else h1=h1*10-k;
+ 176   6                                              }
+ 177   5                                              if(xsd==1)
+ 178   5                                              {
+ 179   6                                                      e--;
+C51 COMPILER V8.06   _íÎõ                                                                  01/27/2015 10:03:03 PAGE 4   
+
+ 180   6                                                      temp=pow(10,e);
+ 181   6                                                      if(h1>=0)h1=h1+k*temp;
+ 182   6                                                      else h1=h1-k*temp;
+ 183   6                                              }
+ 184   5                                              displaypro(h1);
+ 185   5                                      }
+ 186   4                                      else
+ 187   4                                      {
+ 188   5                                              if(xsd==0)
+ 189   5                                              {
+ 190   6                                                      if(h3>=0)h3=h3*10+k;
+ 191   6                                                      else h3=h3*10-k;
+ 192   6                                              }
+ 193   5                                              if(xsd==1)
+ 194   5                                              {
+ 195   6                                                      e--;
+ 196   6                                                      temp=pow(10,e);
+ 197   6                                                      if(h3>=0)h3=h3+k*temp;
+ 198   6                                                      else h3=h3-k*temp;
+ 199   6                                              }
+ 200   5                                              displaypro(h3);
+ 201   5                                      }
+ 202   4                              }
+ 203   3                              hand++;
+ 204   3                              break;
+ 205   3                              case 10:if(hand==0)//¼ÓºÅ
+ 206   3                              {
+ 207   4                                      if(h4!=0)
+ 208   4                                      {
+ 209   5                                              h1=h4;
+ 210   5                                              h4=0;
+ 211   5                                      }
+ 212   4                                      switch(h2)
+ 213   4                                      {
+ 214   5                                              case 0: h2=1;break;
+ 215   5                                              case 1: h1=h1+h3;h2=1;h3=0;displaypro(h1);break;
+ 216   5                                              case 2: h1=h1-h3;h2=1;h3=0;displaypro(h1);break;
+ 217   5                                              case 3: h1=h1*h3;h2=1;h3=0;displaypro(h1);break;
+ 218   5                                              case 4: h1=h1/h3;h2=1;h3=0;displaypro(h1);break;
+ 219   5                                      }
+ 220   4                                      xsd=0;e=0;
+ 221   4                              }
+ 222   3                              hand++;
+ 223   3                              break;
+ 224   3                              case 11:if(hand==0)//¼õºÅ
+ 225   3                              {
+ 226   4                                      if(h4!=0)
+ 227   4                                      {
+ 228   5                                              h1=h4;
+ 229   5                                              h4=0;
+ 230   5                                      }
+ 231   4                                      switch(h2)
+ 232   4                                      {
+ 233   5                                              case 0: h2=2;break;
+ 234   5                                              case 1: h1=h1+h3;h2=2;h3=0;displaypro(h1);break;
+ 235   5                                              case 2: h1=h1-h3;h2=2;h3=0;displaypro(h1);break;
+ 236   5                                              case 3: h1=h1*h3;h2=2;h3=0;displaypro(h1);break;
+ 237   5                                              case 4: h1=h1/h3;h2=2;h3=0;displaypro(h1);break;
+ 238   5                                      }
+ 239   4                                      xsd=0;e=0;
+ 240   4                              }
+ 241   3                              hand++;
+C51 COMPILER V8.06   _íÎõ                                                                  01/27/2015 10:03:03 PAGE 5   
+
+ 242   3                              break;
+ 243   3                              case 12:if(hand==0)//³ËºÅ
+ 244   3                              {
+ 245   4                                      if(h4!=0)
+ 246   4                                      {
+ 247   5                                              h1=h4;
+ 248   5                                              h4=0;
+ 249   5                                      }
+ 250   4                                      switch(h2)
+ 251   4                                      {
+ 252   5                                              case 0: h2=3;break;
+ 253   5                                              case 1: h1=h1+h3;h2=3;h3=0;displaypro(h1);break;
+ 254   5                                              case 2: h1=h1-h3;h2=3;h3=0;displaypro(h1);break;
+ 255   5                                              case 3: h1=h1*h3;h2=3;h3=0;displaypro(h1);break;
+ 256   5                                              case 4: h1=h1/h3;h2=3;h3=0;displaypro(h1);break;
+ 257   5                                      }
+ 258   4                                      xsd=0;e=0;
+ 259   4                              }
+ 260   3                              hand++;
+ 261   3                              break;
+ 262   3                              case 13:if(hand==0)//³ýºÅ
+ 263   3                              {
+ 264   4                                      if(h4!=0)
+ 265   4                                      {
+ 266   5                                              h1=h4;
+ 267   5                                              h4=0;
+ 268   5                                      }
+ 269   4                                      switch(h2)
+ 270   4                                      {
+ 271   5                                              case 0: h2=4;break;
+ 272   5                                              case 1: h1=h1+h3;h2=4;h3=0;displaypro(h1);break;
+ 273   5                                              case 2: h1=h1-h3;h2=4;h3=0;displaypro(h1);break;
+ 274   5                                              case 3: h1=h1*h3;h2=4;h3=0;displaypro(h1);break;
+ 275   5                                              case 4: h1=h1/h3;h2=4;h3=0;displaypro(h1);break;
+ 276   5                                      }
+ 277   4                                      xsd=0;e=0;
+ 278   4                              }
+ 279   3                              hand++;
+ 280   3                              break;
+ 281   3                              case 14:if(hand==0)//¸ººÅ»òÕýºÅ
+ 282   3                              {
+ 283   4                                      if(h2==0)
+ 284   4                                      {
+ 285   5                                              h1=-h1;
+ 286   5                                              displaypro(h1);
+ 287   5                                      }
+ 288   4                                      else
+ 289   4                                      {
+ 290   5                                              h3=-h3;
+ 291   5                                              displaypro(h3);
+ 292   5                                      }
+ 293   4                              }
+ 294   3                              hand++;
+ 295   3                              break;
+ 296   3                              case 15:if(hand==0)//¿ª·½
+ 297   3                              {
+ 298   4                                      if(h4!=0)
+ 299   4                                      {
+ 300   5                                              h1=h4;
+ 301   5                                              h4=0;
+ 302   5                                      }
+ 303   4                                      if(h2==0)
+C51 COMPILER V8.06   _íÎõ                                                                  01/27/2015 10:03:03 PAGE 6   
+
+ 304   4                                      {
+ 305   5                                              h1=sqrt(h1);
+ 306   5                                              displaypro(h1);
+ 307   5                                      }
+ 308   4                                      else
+ 309   4                                      if(h3==0)
+ 310   4                                      {
+ 311   5                                              h1=sqrt(h1);
+ 312   5                                              displaypro(h1);
+ 313   5                                              h2=0;
+ 314   5                                      }
+ 315   4                                      else
+ 316   4                                      {
+ 317   5                                              h3=sqrt(h3);
+ 318   5                                              displaypro(h3);
+ 319   5                                      }
+ 320   4                                              xsd=0;e=0;
+ 321   4                              }
+ 322   3                              hand++;
+ 323   3                              break;
+ 324   3                              case 16:if(hand==0)//Ð¡Êýµã
+ 325   3                              {
+ 326   4                                      xsd=1;
+ 327   4                              }
+ 328   3                              hand++;
+ 329   3                              break;
+ 330   3                              case 17:if(hand==0)// 1/x
+ 331   3                              {
+ 332   4                                      if(h4!=0)
+ 333   4                                      {
+ 334   5                                              h1=h4;
+ 335   5                                              h4=0;
+ 336   5                                      }
+ 337   4                                      if(h2==0)
+ 338   4                                      {
+ 339   5                                              h1=1/h1;
+ 340   5                                              displaypro(h1);
+ 341   5                                      }
+ 342   4                                      else
+ 343   4                                      if(h3==0)
+ 344   4                                      {
+ 345   5                                              h1=1/h1;
+ 346   5                                              displaypro(h1);
+ 347   5                                              h2=0;
+ 348   5                                      }
+ 349   4                                      else
+ 350   4                                      {
+ 351   5                                              h3=1/h3;
+ 352   5                                              displaypro(h3);
+ 353   5                                      }
+ 354   4                                      xsd=0;e=0;
+ 355   4                              }
+ 356   3                              hand++;
+ 357   3                              break;
+ 358   3                              case 18:if(hand==0)//È«²¿Çå³ý
+ 359   3                              {
+ 360   4                                      h1=0;
+ 361   4                                      h2=0;
+ 362   4                                      h3=0;
+ 363   4                                      xsd=0;
+ 364   4                                      e=0;
+ 365   4                                      displaypro(0);
+C51 COMPILER V8.06   _íÎõ                                                                  01/27/2015 10:03:03 PAGE 7   
+
+ 366   4                              }
+ 367   3                              hand++;
+ 368   3                              break;
+ 369   3                              case 19:if(hand==0)//µÈÓÚºÅ
+ 370   3                              {
+ 371   4                                      switch(h2)
+ 372   4                                      {
+ 373   5                                              case 0: break;
+ 374   5                                              case 1: h4=h1+h3;h1=0;h2=0;h3=0;displaypro(h4);break;
+ 375   5                                              case 2: h4=h1-h3;h1=0;h2=0;h3=0;displaypro(h4);break;
+ 376   5                                              case 3: h4=h1*h3;h1=0;h2=0;h3=0;displaypro(h4);break;
+ 377   5                                              case 4: h4=h1/h3;h1=0;h2=0;h3=0;displaypro(h4);break;
+ 378   5                                      }
+ 379   4                                      xsd=0;e=0;
+ 380   4                              }
+ 381   3                      }
+ 382   2              }
+ 383   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3251    ----
+   CONSTANT SIZE    =     18    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8      32
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,200 @@
+C51 COMPILER V9.01   R61505V                                                               02/13/2015 03:18:13 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE R61505V
+OBJECT MODULE PLACED IN R61505V.OBJ
+COMPILER INVOKED BY: C:\KeilMDK\C51\BIN\C51.EXE R61505V.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include"r61505v.h"
+   2          
+   3          /****************************************************************************
+   4          *函数名：TFT_WriteCmd
+   5          *输  入：cmd
+   6          *输  出：
+   7          *功  能：写命令。
+   8          ****************************************************************************/     
+   9          
+  10          void TFT_WriteCmd(uint cmd)
+  11          {
+  12   1              uchar cmdH, cmdL;
+  13   1              
+  14   1              cmdH = cmd >> 8;
+  15   1              cmdL = cmd & 0x00FF;  //先进行数据换算，转为8位宽
+  16   1      
+  17   1              TFT_WR = 1;                       //初始化WR
+  18   1              TFT_CS = 0;                       //打开片选
+  19   1              TFT_RS = 0;                       //选择命令
+  20   1              TFT_RD = 1;           //选择写
+  21   1      
+  22   1              TFT_DATAPORTH = cmdH; //放置命令数据
+  23   1              TFT_DATAPORTL = cmdL;
+  24   1      
+  25   1              TFT_WR = 0;                       //写入时序
+  26   1              TFT_WR = 1;
+  27   1      
+  28   1              TFT_CS = 1;                       //关闭片选
+  29   1      }
+  30          
+  31          /****************************************************************************
+  32          *函数名：TFT_WriteData
+  33          *输  入：dat
+  34          *输  出：
+  35          *功  能：写数据。
+  36          ****************************************************************************/     
+  37          
+  38          void TFT_WriteData(uint dat)
+  39          {
+  40   1              uchar datH, datL;
+  41   1              datH = dat >> 8;
+  42   1              datL = dat & 0x00FF;  //先进行数据换算，转为8位宽
+  43   1      
+  44   1              TFT_WR = 1;                       //初始化WR
+  45   1              TFT_CS = 0;                       //打开片选
+  46   1              TFT_RS = 1;                       //选择发送数据
+  47   1              TFT_RD = 1;           //选择写
+  48   1      
+  49   1              TFT_DATAPORTH = datH; //放置命令数据
+  50   1              TFT_DATAPORTL = datL;
+  51   1      
+  52   1              TFT_WR = 0;                       //写入时序
+  53   1              TFT_WR = 1;
+  54   1      
+  55   1              TFT_CS = 1;                       //关闭片选
+C51 COMPILER V9.01   R61505V                                                               02/13/2015 03:18:13 PAGE 2   
+
+  56   1      }
+  57          
+  58          /****************************************************************************
+  59          *函数名：TFT_WriteCmdData
+  60          *输  入：cmd, dat
+  61          *输  出：
+  62          *功  能：写命令， 写数据。
+  63          ****************************************************************************/     
+  64          
+  65          void TFT_WriteCmdData(uint cmd, uint dat)
+  66          {
+  67   1              TFT_WriteCmd(cmd);
+  68   1              TFT_WriteData(dat);
+  69   1      }
+  70          
+  71          /****************************************************************************
+  72          *函数名：TFT_Init
+  73          *输  入：
+  74          *输  出：
+  75          *功  能：初始化TFT。
+  76          ****************************************************************************/     
+  77          
+  78          void TFT_Init(void)
+  79          {
+  80   1              uint i;
+  81   1      
+  82   1              TFT_RST = 1;
+  83   1              for(i=500; i>0; i--);
+  84   1              TFT_RST = 0;
+  85   1              for(i=500; i>0; i--);
+  86   1              TFT_RST = 1;
+  87   1              for(i=5000; i>0; i--);
+  88   1              
+  89   1              TFT_CS = 0;
+  90   1      
+  91   1              TFT_WriteCmdData(0x0000, 0x0001);
+  92   1              TFT_WriteCmdData(0x0007, 0x0000);                       
+  93   1              TFT_WriteCmdData(0x0012, 0x0000);       
+  94   1              TFT_WriteCmdData(0x00A4, 0x0001);
+  95   1      
+  96   1              for(i=5000; i>0; i--);
+  97   1      
+  98   1      //--------GAMMA SETTINGS---------
+  99   1              TFT_WriteCmdData(0x0008, 0x0808); 
+ 100   1              TFT_WriteCmdData(0x0018 ,0x0001);                       
+ 101   1              TFT_WriteCmdData(0x0010, 0x11B0);                       
+ 102   1              TFT_WriteCmdData(0x0011, 0x0000);
+ 103   1              TFT_WriteCmdData(0x0012, 0x1115);
+ 104   1              TFT_WriteCmdData(0x0013, 0x8B0B);
+ 105   1              TFT_WriteCmdData(0x0012, 0x1135);                       
+ 106   1              TFT_WriteCmdData(0x0014, 0x8000);
+ 107   1              TFT_WriteCmdData(0x0001, 0x0100);
+ 108   1              TFT_WriteCmdData(0x0002, 0x0700); 
+ 109   1              TFT_WriteCmdData(0x0003, 0x1030);
+ 110   1              TFT_WriteCmdData(0x0070, 0x1B00);
+ 111   1      
+ 112   1              TFT_WriteCmdData(0x0071, 0x0001);
+ 113   1              TFT_WriteCmdData(0x0090, 0x0002);           
+ 114   1              TFT_WriteCmdData(0x0091, 0x0000);
+ 115   1              TFT_WriteCmdData(0x0092, 0x0001);
+ 116   1              TFT_WriteCmdData(0x0007, 0x0001);
+ 117   1              for(i=5000; i>0; i--);
+C51 COMPILER V9.01   R61505V                                                               02/13/2015 03:18:13 PAGE 3   
+
+ 118   1      
+ 119   1              TFT_WriteCmdData(0x0007, 0x0021);
+ 120   1              for(i=5000; i>0; i--);
+ 121   1      
+ 122   1              TFT_WriteCmdData(0x0012, 0x1135);                  
+ 123   1              TFT_WriteCmdData(0x0007, 0x0233);                 
+ 124   1                              
+ 125   1              TFT_WriteCmd(0x0022);
+ 126   1              
+ 127   1      }
+ 128          
+ 129          /****************************************************************************
+ 130          *函数名：TFT_SetWindow
+ 131          *输  入：xStart, yStart, xEnd, yEnd
+ 132          *输  出：
+ 133          *功  能：设置要操作的窗口。
+ 134          ****************************************************************************/     
+ 135          
+ 136          void TFT_SetWindow(uint xStart, uint yStart, uint xEnd, uint yEnd)
+ 137          {
+ 138   1              
+ 139   1      
+ 140   1              TFT_WriteCmdData(0x0050, xStart);        //水平线起始
+ 141   1              TFT_WriteCmdData(0x0052, yStart);        //垂直线起始
+ 142   1              TFT_WriteCmdData(0x0051, xEnd);  //水平线结束
+ 143   1              TFT_WriteCmdData(0x0053, yEnd);  //垂直线结束
+ 144   1      
+ 145   1              TFT_WriteCmdData(0x0020, xEnd);
+ 146   1              TFT_WriteCmdData(0x0021, yEnd);
+ 147   1      
+ 148   1              TFT_WriteCmd(0x0022);   
+ 149   1      }
+ 150          
+ 151          /****************************************************************************
+ 152          *函数名：GUI_Clearcreen
+ 153          *输  入：backColor
+ 154          *输  出：
+ 155          *功  能：清屏并涂上颜色。
+ 156          ****************************************************************************/
+ 157                    
+ 158          void TFT_ClearScreen(uint color)
+ 159          {
+ 160   1              uint i, j;
+ 161   1      
+ 162   1              TFT_SetWindow(0, 0, TFT_XMAX, TFT_YMAX);         //作用区域
+ 163   1              for(i=0; i<TFT_XMAX+1; i++)
+ 164   1              {
+ 165   2                      for (j=0; j<TFT_YMAX+1; j++)
+ 166   2                      {
+ 167   3                              TFT_WriteData(color);
+ 168   3                      }
+ 169   2      
+ 170   2              }
+ 171   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    550    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      10
+C51 COMPILER V9.01   R61505V                                                               02/13/2015 03:18:13 PAGE 4   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

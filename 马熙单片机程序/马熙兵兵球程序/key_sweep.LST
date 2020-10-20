@@ -1,0 +1,89 @@
+C51 COMPILER V7.00  KEY_SWEEP                                                              04/29/2010 13:44:20 PAGE 1   
+
+
+C51 COMPILER V7.00, COMPILATION OF MODULE KEY_SWEEP
+OBJECT MODULE PLACED IN key_sweep.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE key_sweep.c LARGE BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /***************************************************************/
+   2          /*底层驱动名称:   4*4按键翻转式扫描驱动  
+   3          /*入 口  参 数：  无  宏定义：Key_Port P2      
+   4          /*出 口  参 数：  按键值(十进制）               
+   5          /*作        者：  先永     完成时间：2009、2、20          
+   6          /***************************************************************/
+   7          
+   8          #include <reg51.h>
+   9          #include <KEY_SWEEP.H>
+  10          
+  11          unsigned char Key_Value=0;
+  12          unsigned char Key_flag =0;
+  13          
+  14          
+  15          void Interrupt0_Key (void)
+  16          {
+  17   1              IT0=1;            //设置下降沿中触发
+  18   1              EA=1;             //开总中断
+  19   1              EX0=1;            //开外部中断
+  20   1              Key_Port=0X0f;
+  21   1      }
+  22                                                                     
+  23          unsigned char code Key_code[]=
+  24          {
+  25                  //p0    p1   p2  p3
+  26                  0xee,0xed,0xeb,0xe7,   //p4
+  27                  0xde,0xdd,0xdb,0xd7,   //p5
+  28                  0xbe,0xbd,0xbb,0xb7,   //p6
+  29                  0x7e,0x7d,0x7b,0x77  //p7
+  30          };
+  31          
+  32          //以上为键码，换他们排列顺序就可以坏氐
+  33          void Int0 () interrupt 0
+  34          {
+  35   1              unsigned char   KeyV_l,KeyV_h,KeyV,i;
+  36   1                                      
+  37   1              if(Key_Port!=0X0f)                //0000 1111  有按键的时候就可能是0000 1110；
+  38   1              {
+  39   2                      //Delay();
+  40   2                      if(Key_Port!=0X0f)                //0000 1111  有按键的时候就可能是0000 1110；
+  41   2                      {
+  42   3                              KeyV_l=Key_Port&0x0f; //取出键码的 低4位
+  43   3                              Key_Port=0XF0;
+  44   3                              KeyV_h=Key_Port&0xf0; //取出键码的 高4位
+  45   3                              KeyV=KeyV_h+KeyV_l;       //合并键码
+  46   3              
+  47   3                              /*************************************
+  48   3                          按键编码         对应         键值
+  49   3                              Ee   ed   eb  e7                 1      5  9   13
+  50   3                              De   dd   db  d7                 2      6  10  14
+  51   3                              Be   bd   bb  b7                 3      7  11  15
+  52   3                              7e   7d   7b  77                 4      8  12  16
+  53   3                              *************************************/
+  54   3                              for(i=0;i<16;i++)       //利用键码查找键值
+  55   3                              {
+C51 COMPILER V7.00  KEY_SWEEP                                                              04/29/2010 13:44:20 PAGE 2   
+
+  56   4                                      if(Key_code[i]==KeyV)
+  57   4                                      Key_Value=(i+1);
+  58   4                              }
+  59   3                              Key_Port=0X0f;
+  60   3                      }
+  61   2              }
+  62   1      
+  63   1              Key_flag =1;
+  64   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     98    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =      2    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,292 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\MX\Desktop\ÂíÎõ\LCD16022.uvproj
+Project File Date:  01/30/2015
+
+<h2>Output:</h2>
+Build target 'Target 1'
+Target has no object modules
+Target not created
+Build target 'Target 1'
+compiling LCD16022.c...
+LCD16022.C(10): error C141: syntax error near '\'
+LCD16022.C(10): error C100: unprintable character 0xD4 skipped
+LCD16022.C(10): error C100: unprintable character 0xA4 skipped
+LCD16022.C(10): error C100: unprintable character 0xB6 skipped
+LCD16022.C(10): error C100: unprintable character 0xA8 skipped
+LCD16022.C(10): error C100: unprintable character 0xD2 skipped
+LCD16022.C(10): error C100: unprintable character 0xE5 skipped
+LCD16022.C(10): error C100: unprintable character 0xD2 skipped
+LCD16022.C(10): error C100: unprintable character 0xBB skipped
+LCD16022.C(10): error C100: unprintable character 0xCF skipped
+LCD16022.C(10): error C100: unprintable character 0xC2 skipped
+LCD16022.C(12): error C141: syntax error near '\'
+LCD16022.C(12): error C100: unprintable character 0xD4 skipped
+LCD16022.C(12): error C100: unprintable character 0xA4 skipped
+LCD16022.C(12): error C100: unprintable character 0xB6 skipped
+LCD16022.C(12): error C100: unprintable character 0xA8 skipped
+LCD16022.C(12): error C100: unprintable character 0xD2 skipped
+LCD16022.C(12): error C100: unprintable character 0xE5 skipped
+LCD16022.C(12): error C100: unprintable character 0xD2 skipped
+LCD16022.C(12): error C100: unprintable character 0xBB skipped
+LCD16022.C(12): error C100: unprintable character 0xCF skipped
+LCD16022.C(12): error C100: unprintable character 0xC2 skipped
+LCD16022.C(12): error C202: 'x': undefined identifier
+LCD16022.C(13): error C202: 'x': undefined identifier
+LCD16022.C(14): error C202: 'y': undefined identifier
+LCD16022.C(16): error C141: syntax error near '\'
+LCD16022.C(16): error C100: unprintable character 0xD0 skipped
+LCD16022.C(16): error C100: unprintable character 0xB4 skipped
+LCD16022.C(16): error C100: unprintable character 0xC3 skipped
+LCD16022.C(16): error C100: unprintable character 0xFC skipped
+LCD16022.C(16): error C100: unprintable character 0xC1 skipped
+LCD16022.C(16): error C100: unprintable character 0xEE skipped
+LCD16022.C(16): error C100: unprintable character 0xBA skipped
+LCD16022.C(16): error C100: unprintable character 0xAF skipped
+LCD16022.C(16): error C100: unprintable character 0xCA skipped
+LCD16022.C(18): error C231: 'rs': redefinition
+LCD16022.C(18): error C231: 'rs': redefinition
+LCD16022.C(19): error C231: 'rw': redefinition
+LCD16022.C(19): error C231: 'rw': redefinition
+LCD16022.C(20): error C231: 'P2': redefinition
+LCD16022.C(20): error C202: 'com': undefined identifier
+LCD16022.C(20): error C231: 'P2': redefinition
+LCD16022.C(21): error C141: syntax error near '5'
+LCD16022.C(21): error C231: 'delay': redefinition
+LCD16022.C(22): error C231: 'en': redefinition
+LCD16022.C(22): error C231: 'en': redefinition
+LCD16022.C(23): error C279: 'en': multiple initialization
+LCD16022.C(23): error C231: 'en': redefinition
+LCD16022.C(23): error C231: 'en': redefinition
+LCD16022.C(24): error C141: syntax error near '}'
+LCD16022.C(25): error C141: syntax error near '?'
+LCD16022.C(25): error C100: unprintable character 0xD0 skipped
+LCD16022.C(25): error C100: unprintable character 0xB4 skipped
+LCD16022.C(25): error C100: unprintable character 0xCA skipped
+LCD16022.C(25): error C100: unprintable character 0xBE skipped
+LCD16022.C(25): error C100: unprintable character 0xDD skipped
+LCD16022.C(25): error C100: unprintable character 0xBA skipped
+LCD16022.C(25): error C100: unprintable character 0xAF skipped
+LCD16022.C(25): error C100: unprintable character 0xCA skipped
+LCD16022.C(27): error C279: 'rs': multiple initialization
+LCD16022.C(27): error C231: 'rs': redefinition
+LCD16022.C(27): error C231: 'rs': redefinition
+LCD16022.C(28): error C279: 'rw': multiple initialization
+LCD16022.C(28): error C231: 'rw': redefinition
+LCD16022.C(28): error C231: 'rw': redefinition
+LCD16022.C(29): error C279: 'P2': multiple initialization
+LCD16022.C(29): error C231: 'P2': redefinition
+LCD16022.C(29): error C202: 'dat': undefined identifier
+LCD16022.C(29): error C231: 'P2': redefinition
+LCD16022.C(30): error C141: syntax error near '5'
+LCD16022.C(30): error C231: 'delay': redefinition
+LCD16022.C(31): error C279: 'en': multiple initialization
+LCD16022.C(31): error C231: 'en': redefinition
+LCD16022.C(31): error C231: 'en': redefinition
+LCD16022.C(32): error C279: 'en': multiple initialization
+LCD16022.C(32): error C231: 'en': redefinition
+LCD16022.C(32): error C231: 'en': redefinition
+LCD16022.C(33): error C141: syntax error near '}'
+Target not created
+Build target 'Target 1'
+compiling LCD16022.c...
+LCD16022.C(10): error C141: syntax error near '\'
+LCD16022.C(10): error C100: unprintable character 0xD4 skipped
+LCD16022.C(10): error C100: unprintable character 0xA4 skipped
+LCD16022.C(10): error C100: unprintable character 0xB6 skipped
+LCD16022.C(10): error C100: unprintable character 0xA8 skipped
+LCD16022.C(10): error C100: unprintable character 0xD2 skipped
+LCD16022.C(10): error C100: unprintable character 0xE5 skipped
+LCD16022.C(10): error C100: unprintable character 0xD2 skipped
+LCD16022.C(10): error C100: unprintable character 0xBB skipped
+LCD16022.C(10): error C100: unprintable character 0xCF skipped
+LCD16022.C(10): error C100: unprintable character 0xC2 skipped
+LCD16022.C(12): error C141: syntax error near '\'
+LCD16022.C(12): error C100: unprintable character 0xD4 skipped
+LCD16022.C(12): error C100: unprintable character 0xA4 skipped
+LCD16022.C(12): error C100: unprintable character 0xB6 skipped
+LCD16022.C(12): error C100: unprintable character 0xA8 skipped
+LCD16022.C(12): error C100: unprintable character 0xD2 skipped
+LCD16022.C(12): error C100: unprintable character 0xE5 skipped
+LCD16022.C(12): error C100: unprintable character 0xD2 skipped
+LCD16022.C(12): error C100: unprintable character 0xBB skipped
+LCD16022.C(12): error C100: unprintable character 0xCF skipped
+LCD16022.C(12): error C100: unprintable character 0xC2 skipped
+LCD16022.C(12): error C202: 'x': undefined identifier
+LCD16022.C(13): error C202: 'x': undefined identifier
+LCD16022.C(14): error C202: 'y': undefined identifier
+LCD16022.C(16): error C141: syntax error near '\'
+LCD16022.C(16): error C100: unprintable character 0xD0 skipped
+LCD16022.C(16): error C100: unprintable character 0xB4 skipped
+LCD16022.C(16): error C100: unprintable character 0xC3 skipped
+LCD16022.C(16): error C100: unprintable character 0xFC skipped
+LCD16022.C(16): error C100: unprintable character 0xC1 skipped
+LCD16022.C(16): error C100: unprintable character 0xEE skipped
+LCD16022.C(16): error C100: unprintable character 0xBA skipped
+LCD16022.C(16): error C100: unprintable character 0xAF skipped
+LCD16022.C(16): error C100: unprintable character 0xCA skipped
+LCD16022.C(18): error C231: 'rs': redefinition
+LCD16022.C(18): error C231: 'rs': redefinition
+LCD16022.C(19): error C231: 'rw': redefinition
+LCD16022.C(19): error C231: 'rw': redefinition
+LCD16022.C(20): error C231: 'P2': redefinition
+LCD16022.C(20): error C202: 'com': undefined identifier
+LCD16022.C(20): error C231: 'P2': redefinition
+LCD16022.C(21): error C141: syntax error near '5'
+LCD16022.C(21): error C231: 'delay': redefinition
+LCD16022.C(22): error C231: 'en': redefinition
+LCD16022.C(22): error C231: 'en': redefinition
+LCD16022.C(23): error C279: 'en': multiple initialization
+LCD16022.C(23): error C231: 'en': redefinition
+LCD16022.C(23): error C231: 'en': redefinition
+LCD16022.C(24): error C141: syntax error near '}'
+LCD16022.C(25): error C141: syntax error near '?'
+LCD16022.C(25): error C100: unprintable character 0xD0 skipped
+LCD16022.C(25): error C100: unprintable character 0xB4 skipped
+LCD16022.C(25): error C100: unprintable character 0xCA skipped
+LCD16022.C(25): error C100: unprintable character 0xBE skipped
+LCD16022.C(25): error C100: unprintable character 0xDD skipped
+LCD16022.C(25): error C100: unprintable character 0xBA skipped
+LCD16022.C(25): error C100: unprintable character 0xAF skipped
+LCD16022.C(25): error C100: unprintable character 0xCA skipped
+LCD16022.C(27): error C279: 'rs': multiple initialization
+LCD16022.C(27): error C231: 'rs': redefinition
+LCD16022.C(27): error C231: 'rs': redefinition
+LCD16022.C(28): error C279: 'rw': multiple initialization
+LCD16022.C(28): error C231: 'rw': redefinition
+LCD16022.C(28): error C231: 'rw': redefinition
+LCD16022.C(29): error C279: 'P2': multiple initialization
+LCD16022.C(29): error C231: 'P2': redefinition
+LCD16022.C(29): error C202: 'dat': undefined identifier
+LCD16022.C(29): error C231: 'P2': redefinition
+LCD16022.C(30): error C141: syntax error near '5'
+LCD16022.C(30): error C231: 'delay': redefinition
+LCD16022.C(31): error C279: 'en': multiple initialization
+LCD16022.C(31): error C231: 'en': redefinition
+LCD16022.C(31): error C231: 'en': redefinition
+LCD16022.C(32): error C279: 'en': multiple initialization
+LCD16022.C(32): error C231: 'en': redefinition
+LCD16022.C(32): error C231: 'en': redefinition
+LCD16022.C(33): error C141: syntax error near '}'
+Target not created
+Build target 'Target 1'
+compiling LCD16022.c...
+LCD16022.C(10): error C141: syntax error near '\'
+LCD16022.C(10): error C100: unprintable character 0xD4 skipped
+LCD16022.C(10): error C100: unprintable character 0xA4 skipped
+LCD16022.C(10): error C100: unprintable character 0xB6 skipped
+LCD16022.C(10): error C100: unprintable character 0xA8 skipped
+LCD16022.C(10): error C100: unprintable character 0xD2 skipped
+LCD16022.C(10): error C100: unprintable character 0xE5 skipped
+LCD16022.C(10): error C100: unprintable character 0xD2 skipped
+LCD16022.C(10): error C100: unprintable character 0xBB skipped
+LCD16022.C(10): error C100: unprintable character 0xCF skipped
+LCD16022.C(10): error C100: unprintable character 0xC2 skipped
+LCD16022.C(12): error C141: syntax error near '\'
+LCD16022.C(12): error C100: unprintable character 0xD4 skipped
+LCD16022.C(12): error C100: unprintable character 0xA4 skipped
+LCD16022.C(12): error C100: unprintable character 0xB6 skipped
+LCD16022.C(12): error C100: unprintable character 0xA8 skipped
+LCD16022.C(12): error C100: unprintable character 0xD2 skipped
+LCD16022.C(12): error C100: unprintable character 0xE5 skipped
+LCD16022.C(12): error C100: unprintable character 0xD2 skipped
+LCD16022.C(12): error C100: unprintable character 0xBB skipped
+LCD16022.C(12): error C100: unprintable character 0xCF skipped
+LCD16022.C(12): error C100: unprintable character 0xC2 skipped
+LCD16022.C(12): error C202: 'x': undefined identifier
+LCD16022.C(13): error C202: 'x': undefined identifier
+LCD16022.C(14): error C202: 'y': undefined identifier
+Target not created
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=176
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=189
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=195
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=202
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=202
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=207
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=207
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=207
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=207
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=199
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=202
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=202
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=202
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=194
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling LCD16022.c...
+linking...
+Program Size: data=9.0 xdata=0 code=194
+creating hex file from "LCD16022"...
+"LCD16022" - 0 Error(s), 0 Warning(s).

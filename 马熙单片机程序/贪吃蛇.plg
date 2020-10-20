@@ -1,0 +1,52 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\MX\Desktop\¬ÌŒı\Ã∞≥‘…ﬂ.uvproj
+Project File Date:  02/11/2015
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling gui.c...
+compiling R61505V.c...
+compiling Ã∞≥‘…ﬂ.c...
+Ã∞≥‘…ﬂ.c(29): warning C318: can't open file 'key_sweep.h'
+Ã∞≥‘…ﬂ.C(56): error C202: 'Key_Right': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL0': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL1': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL2': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL3': undefined identifier
+Target not created
+Build target 'Target 1'
+compiling gui.c...
+compiling R61505V.c...
+compiling Ã∞≥‘…ﬂ.c...
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL0': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL1': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL2': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL3': undefined identifier
+compiling key_sweep.c...
+key_sweep.c(8): warning C318: can't open file 'stc.h'
+KEY_SWEEP.C(32): error C202: 'Key_Port': undefined identifier
+KEY_SWEEP.C(34): error C202: 'Key_Port': undefined identifier
+KEY_SWEEP.C(35): error C202: 'Key_Port': undefined identifier
+KEY_SWEEP.C(36): error C202: 'Key_Port': undefined identifier
+KEY_SWEEP.C(51): error C202: 'Key_Port': undefined identifier
+Target not created
+Build target 'Target 1'
+compiling gui.c...
+compiling R61505V.c...
+compiling Ã∞≥‘…ﬂ.c...
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL0': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL1': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL2': undefined identifier
+Ã∞≥‘…ﬂ.C(97): error C202: 'COL3': undefined identifier
+compiling key_sweep.c...
+key_sweep.c(8): warning C318: can't open file 'stc.h'
+KEY_SWEEP.C(32): error C202: 'Key_Port': undefined identifier
+KEY_SWEEP.C(34): error C202: 'Key_Port': undefined identifier
+KEY_SWEEP.C(35): error C202: 'Key_Port': undefined identifier
+KEY_SWEEP.C(36): error C202: 'Key_Port': undefined identifier
+KEY_SWEEP.C(51): error C202: 'Key_Port': undefined identifier
+Target not created
